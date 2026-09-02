@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Jardines Alcalde Conectada</title>
+<meta name="description" content="Portal oficial de avisos y seguridad digital de la colonia Jardines Alcalde, administrado por la Junta de Colonos.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#FAF6EC; --surface:#FFFFFF; --surface-alt:#F3ECDA;
+    --primary:#153F2E; --primary-dark:#0B2A1E; --primary-mid:#1F5A41; --primary-light:#E1EEE6;
+    --accent:#E0932E; --accent-dark:#A96E1C; --accent-light:#FBEBD2; --accent-glow:#F5B84D;
+    --coral:#D96B48; --coral-light:#FBE3D8;
+    --danger:#B23B3B; --danger-light:#F9E6E6;
+    --text:#1A1812; --text-secondary:#5C5748;
+    --border:#E6DFCA; --radius:20px; --radius-sm:12px;
+    --shadow-sm:0 2px 8px rgba(19,30,22,.07);
+    --shadow-md:0 10px 28px -6px rgba(19,30,22,.16);
+    --shadow-lg:0 22px 50px -12px rgba(11,42,30,.28);
+    --grad-primary:linear-gradient(135deg,#1F5A41 0%,#0B2A1E 100%);
+    --grad-accent:linear-gradient(135deg,#F5B84D 0%,#D96B48 100%);
+    --font-display:'Fraunces',Georgia,serif;
+    --font-body:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --maxw:640px;
+  }
+  *{box-sizing:border-box;}
+  html{font-size:18px;-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  html.text-lg{font-size:21px;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;padding-bottom:88px;min-height:100vh;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;color:var(--primary-dark);line-height:1.18;margin:0 0 .4em;letter-spacing:-.01em;}
+  h1{font-size:1.85rem;} h2{font-size:1.36rem;} h3{font-size:1.12rem;}
+  p{margin:0 0 1em;}
+  a{color:var(--primary);}
+  button{font-family:inherit;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  img,svg{max-width:100%;display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  #app>*{animation:fadeUp .45s cubic-bezier(.16,1,.3,1) both;}
+  #app>*:nth-child(1){animation-delay:0s;} #app>*:nth-child(2){animation-delay:.04s;}
+  #app>*:nth-child(3){animation-delay:.08s;} #app>*:nth-child(4){animation-delay:.12s;}
+  #app>*:nth-child(5){animation-delay:.16s;} #app>*:nth-child(n+6){animation-delay:.2s;}
+
+  /* Header */
+  .site-header{position:sticky;top:0;z-index:60;background:var(--grad-primary);color:#fff;box-shadow:0 4px 20px -8px rgba(11,42,30,.4);}
+  .header-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:12px;padding:14px 16px;}
+  .gate-mark{color:var(--accent-glow);flex-shrink:0;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28));}
+  .brand{flex:1;min-width:0;}
+  .brand-name{display:block;font-family:var(--font-display);font-weight:600;font-size:1.2rem;line-height:1.15;letter-spacing:-.01em;}
+  .brand-sub{display:block;font-size:.7rem;letter-spacing:.08em;color:var(--accent-glow);opacity:.95;font-weight:600;}
+  .header-actions{display:flex;gap:6px;flex-shrink:0;}
+  .icon-btn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s ease,transform .15s ease;}
+  .icon-btn:hover{background:rgba(255,255,255,.26);}
+  .icon-btn:active{transform:scale(.92);}
+  .icon-btn i{font-size:21px;}
+  .text-toggle{gap:1px;}
+  .text-toggle .ta-small{font-size:11px;font-weight:700;}
+  .text-toggle .ta-large{font-size:18px;font-weight:700;margin-left:1px;}
+
+  /* Nav */
+  .main-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 4px;box-shadow:0 -10px 26px -10px rgba(19,30,22,.14);z-index:50;}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--text-secondary);font-size:11px;padding:7px 6px;border-radius:14px;cursor:pointer;flex:1;max-width:88px;transition:color .15s ease,background .15s ease;}
+  .nav-item i{font-size:22px;}
+  .nav-item.active{color:var(--primary);font-weight:700;background:var(--primary-light);}
+  .nav-item:focus-visible,.icon-btn:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent-glow);outline-offset:2px;border-radius:8px;}
+
+  @media (min-width:768px){
+    body{padding-bottom:0;}
+    .main-nav{position:static;box-shadow:none;border-top:none;border-bottom:1px solid var(--border);gap:6px;padding:10px 16px;backdrop-filter:none;background:var(--surface);}
+    .nav-item{flex-direction:row;flex:none;font-size:15px;padding:10px 18px;gap:8px;max-width:none;}
+    .nav-item i{font-size:18px;}
+  }
+
+  /* Layout */
+  main{max-width:var(--maxw);margin:0 auto;padding:20px 16px 40px;position:relative;}
+  main.wide{max-width:920px;}
+  .loading{padding:40px 0;text-align:center;color:var(--text-secondary);}
+  footer{max-width:var(--maxw);margin:0 auto;padding:18px 16px 40px;color:var(--text-secondary);font-size:.82rem;text-align:center;}
+  .admin-footer-link{background:none;border:none;color:var(--text-secondary);font-size:.76rem;opacity:.55;cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:2px;}
+  .admin-footer-link:hover{opacity:1;}
+
+  /* Portada de Inicio */
+  .home-hero{background:var(--grad-primary);border-radius:0 0 32px 32px;margin:-20px -16px 24px;padding:36px 20px 42px;position:relative;overflow:hidden;color:#fff;text-align:center;}
+  .home-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 0%,rgba(245,184,77,.38),transparent 55%);pointer-events:none;}
+  .home-hero-graphic{position:relative;margin:0 auto 14px;width:78px;height:78px;}
+  .home-hero h1{color:#fff;font-size:1.95rem;margin-bottom:8px;position:relative;}
+  .home-hero p{color:rgba(255,255,255,.85);font-size:1rem;max-width:340px;margin:0 auto;position:relative;}
+
+  /* Feed: tarjeta fijada */
+  .feed-pin{border:none;background:linear-gradient(135deg,var(--accent-light) 0%,#fff 65%);box-shadow:var(--shadow-md);position:relative;overflow:hidden;}
+  .feed-pin::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad-accent);}
+  .feed-pin-badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-dark);margin-bottom:10px;}
+  .feed-pin-body{display:flex;gap:14px;align-items:flex-start;}
+  .feed-pin-icon{flex-shrink:0;width:48px;height:48px;border-radius:14px;background:var(--grad-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;box-shadow:var(--shadow-sm);}
+  .feed-pin-body h3{margin-bottom:4px;}
+  .feed-pin-body p{color:var(--text-secondary);margin-bottom:8px;}
+
+  /* Feed: publicaciones (avisos) */
+  .feed-post{position:relative;overflow:hidden;padding:16px 17px;transition:transform .18s ease,box-shadow .18s ease;}
+  .feed-post::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--grad-accent);}
+  .feed-post:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .feed-post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .feed-post-avatar{width:40px;height:40px;border-radius:50%;background:var(--grad-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:var(--shadow-sm);}
+  .feed-post-author{font-weight:700;font-size:.92rem;color:var(--text);}
+  .feed-post-meta{font-size:.78rem;color:var(--text-secondary);}
+  .feed-post-title{font-family:var(--font-display);font-weight:600;font-size:1.1rem;margin:0 0 5px;color:var(--text);}
+  .feed-post-body{margin:0;color:var(--text-secondary);}
+  .feed-section-label{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);margin:24px 0 12px;display:flex;align-items:center;gap:8px;}
+  .feed-section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* Academia: simulador de chat */
+  .chat-sim{background:linear-gradient(160deg,var(--surface-alt),var(--surface));border-radius:var(--radius);padding:18px;border:1px solid var(--border);}
+  .chat-bubble{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 16px 4px;padding:12px 15px;max-width:88%;box-shadow:var(--shadow-sm);}
+  .chat-bubble-from{font-size:.74rem;color:var(--text-secondary);margin-bottom:3px;}
+  .chat-bubble-text{font-size:.95rem;}
+  .chat-choice-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .chat-choice-btns .btn{width:auto;flex:1;min-width:150px;}
+  .chat-outcome{margin-top:12px;padding:12px 14px;border-radius:10px;display:flex;gap:9px;align-items:flex-start;font-size:.92rem;}
+  .chat-outcome.good{background:var(--primary-light);color:var(--primary-dark);border-left:4px solid var(--primary);}
+  .chat-outcome.bad{background:var(--danger-light);color:#7A2727;border-left:4px solid var(--danger);}
+  .chat-outcome i{margin-top:2px;flex-shrink:0;}
+
+  /* Academia: medidor de contraseña */
+  .pwd-tool input{margin-top:6px;}
+  .pwd-meter{height:12px;border-radius:8px;background:var(--border);margin-top:12px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
+  .pwd-bar{height:100%;width:0;border-radius:8px;transition:width .3s cubic-bezier(.16,1,.3,1),background .3s ease;}
+  .pwd-label{margin-top:7px;font-size:.86rem;font-weight:600;color:var(--text-secondary);}
+
+  /* Academia: mockup del teléfono (verificación en dos pasos) */
+  .phone-steps{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .phone-steps svg{flex-shrink:0;filter:drop-shadow(var(--shadow-sm));}
+  .phone-steps ol{flex:1;min-width:180px;padding-left:20px;margin:0;}
+  .phone-steps li{margin-bottom:8px;}
+
+  /* Academia: tarjetas volteables */
+  .flip-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  .flip-card{background:none;border:none;padding:0;cursor:pointer;height:120px;perspective:1000px;text-align:left;}
+  .flip-card-inner{position:relative;width:100%;height:100%;transition:transform .5s cubic-bezier(.16,1,.3,1);transform-style:preserve-3d;}
+  .flip-card.flipped .flip-card-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius-sm);padding:13px;display:flex;align-items:center;font-size:.86rem;}
+  .flip-front{background:var(--grad-primary);color:#fff;font-weight:700;box-shadow:var(--shadow-sm);}
+  .flip-back{background:var(--surface);border:1.5px solid var(--accent);color:var(--text);transform:rotateY(180deg);font-size:.82rem;box-shadow:var(--shadow-sm);}
+
+  /* Academia: checklist interactivo */
+  .check-list{display:flex;flex-direction:column;gap:9px;}
+  .check-step{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;text-align:left;cursor:pointer;font-size:.94rem;color:var(--text);transition:all .18s ease;}
+  .check-box{flex-shrink:0;width:23px;height:23px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;color:transparent;transition:all .18s ease;}
+  .check-step.done{border-color:var(--primary);background:var(--primary-light);box-shadow:var(--shadow-sm);}
+  .check-step.done .check-box{background:var(--grad-primary);border-color:var(--primary);color:#fff;}
+  .check-step.done span.step-text{text-decoration:line-through;color:var(--text-secondary);}
+  .check-progress{margin-top:10px;font-size:.84rem;color:var(--text-secondary);font-weight:700;}
+
+  /* Tarjetas y secciones */
+  .section-block{margin-bottom:26px;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .section-head h2{margin:0;}
+  .link-btn{background:none;border:none;color:var(--primary);font-weight:700;font-size:.92rem;cursor:pointer;padding:4px;white-space:nowrap;}
+  .view-intro{color:var(--text-secondary);}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .empty-state{background:var(--surface-alt);border:1.5px dashed var(--border);border-radius:var(--radius);padding:24px 18px;text-align:center;color:var(--text-secondary);}
+  .empty-state i{font-size:30px;color:var(--primary);margin-bottom:8px;display:block;}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--grad-primary);color:#fff;border:none;border-radius:14px;padding:14px 20px;font-weight:700;font-size:1rem;cursor:pointer;width:100%;box-shadow:var(--shadow-sm);transition:transform .15s ease,box-shadow .15s ease;}
+  .btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0) scale(.98);}
+  .btn.secondary{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary);box-shadow:none;}
+  .btn.secondary:hover{background:var(--primary-light);box-shadow:none;transform:none;}
+  .btn.danger{background:var(--danger);}
+  .btn.small{width:auto;padding:10px 16px;font-size:.88rem;}
+
+  /* Forms */
+  label{display:block;font-weight:700;margin-bottom:6px;font-size:.95rem;}
+  .field{margin-bottom:16px;}
+  .hint{color:var(--text-secondary);font-size:.82rem;margin-top:5px;}
+  input[type=text],input[type=date],input[type=tel],select,textarea{width:100%;padding:12px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:1rem;font-family:inherit;background:var(--surface);color:var(--text);transition:border-color .15s ease;}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);}
+  textarea{min-height:90px;resize:vertical;}
+  .radio-group,.pin-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .radio-opt{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;flex:1;min-width:120px;background:var(--surface);transition:all .15s ease;}
+  .radio-opt input{width:18px;height:18px;flex-shrink:0;}
+  .radio-opt.checked{border-color:var(--primary);background:var(--primary-light);}
+  .error-text{color:var(--danger);font-size:.85rem;margin-top:6px;display:none;}
+  .error-text.show{display:block;}
+  .scale-row{display:flex;gap:6px;}
+  .scale-opt{position:relative;flex:1;text-align:center;padding:11px 0;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-weight:700;background:var(--surface);transition:all .15s ease;}
+  .scale-opt input{position:absolute;opacity:0;width:1px;height:1px;}
+  .scale-opt:focus-within{outline:3px solid var(--accent-glow);outline-offset:2px;}
+  .scale-opt.checked{border-color:var(--primary);background:var(--grad-primary);color:#fff;}
+  .scale-labels{display:flex;justify-content:space-between;font-size:.76rem;color:var(--text-secondary);margin-top:4px;}
+  .confirm-box{background:linear-gradient(135deg,var(--primary-light),var(--surface));border:1px solid var(--primary);border-radius:var(--radius);padding:22px;text-align:center;color:var(--primary-dark);box-shadow:var(--shadow-sm);}
+  .confirm-box i{font-size:32px;margin-bottom:8px;display:block;color:var(--primary);}
+
+  /* Quiz */
+  .quiz-card{margin-bottom:28px;}
+  .quiz-card h3{display:flex;align-items:center;gap:9px;}
+
+  /* Academia: lecciones */
+  .lesson{margin-bottom:20px;}
+  .lesson h3{display:flex;gap:9px;align-items:flex-start;}
+  .lesson h3 i{color:var(--accent-dark);font-size:1.1rem;margin-top:3px;flex-shrink:0;}
+  .rule-box{background:var(--primary-light);border-left:4px solid var(--primary);border-radius:10px;padding:13px 15px;margin-top:10px;font-weight:600;color:var(--primary-dark);}
+  .alert-box{background:var(--danger-light);border-left:4px solid var(--danger);border-radius:10px;padding:13px 15px;margin-top:10px;}
+  .steps-list{padding-left:22px;margin:8px 0;}
+  .steps-list li{margin-bottom:6px;}
+
+  /* Directorio */
+  .dir-card{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .dir-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--grad-primary);}
+  .dir-card .dir-name{font-weight:700;}
+  .dir-card .dir-rol{color:var(--text-secondary);font-size:.85rem;}
+  .dir-card .dir-contacto{font-weight:700;color:var(--primary);white-space:nowrap;}
+
+  /* Admin */
+  .pin-screen{max-width:340px;margin:36px auto;text-align:center;}
+  .pin-screen i{font-size:40px;color:var(--primary);}
+  .pin-input{letter-spacing:.5em;text-align:center;font-size:1.5rem;font-weight:700;}
+  .admin-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
+  .admin-tab{flex-shrink:0;background:var(--surface);border:1.5px solid var(--border);color:var(--text-secondary);padding:9px 14px;border-radius:999px;font-size:.86rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s ease;}
+  .admin-tab.active{background:var(--grad-primary);color:#fff;border-color:transparent;box-shadow:var(--shadow-sm);}
+  .admin-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .progress-pill{display:inline-flex;align-items:center;gap:7px;background:var(--grad-accent);color:#fff;font-weight:700;padding:8px 15px;border-radius:999px;font-size:.9rem;box-shadow:var(--shadow-sm);}
+  table.data-table{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface);}
+  table.data-table th,table.data-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+  table.data-table th{background:var(--surface-alt);color:var(--primary-dark);font-family:var(--font-display);}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);}
+  .row-actions{display:flex;gap:6px;}
+  .icon-action{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s ease;}
+  .icon-action.danger{color:var(--danger);border-color:var(--danger-light);}
+  .icon-action.danger:hover{background:var(--danger-light);}
+  .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .stat-box{flex:1;min-width:130px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow-sm);}
+  .stat-box .stat-num{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:var(--primary);}
+  .stat-box .stat-label{color:var(--text-secondary);font-size:.8rem;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <svg class="gate-mark" width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 42 L10 18 L24 6 L38 18 L38 42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="42" x2="40" y2="42" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>
+    <div class="brand">
+      <span class="brand-name">Jardines Alcalde</span>
+      <span class="brand-sub">CONECTADA · CANAL OFICIAL</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn text-toggle" id="fontToggle" aria-label="Aumentar tamaño del texto" title="Aumentar tamaño del texto"><span class="ta-small">A</span><span class="ta-large">A</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="main-nav" aria-label="Navegación principal">
+  <button class="nav-item" data-nav="inicio"><i class="ti ti-home"></i><span>Inicio</span></button>
+  <button class="nav-item" data-nav="avisos"><i class="ti ti-bell"></i><span>Avisos</span></button>
+  <button class="nav-item" data-nav="academia"><i class="ti ti-shield-check"></i><span>Academia</span></button>
+  <button class="nav-item" data-nav="recursos"><i class="ti ti-book-2"></i><span>Recursos</span></button>
+  <button class="nav-item" data-nav="autoeval"><i class="ti ti-clipboard-check"></i><span>Cuestionarios</span></button>
+</nav>
+
+<main id="app"><div class="loading">Cargando…</div></main>
+
+<footer>
+  <p style="margin:0 0 10px">Jardines Alcalde Conectada · Proyecto de servicio social, Fundación CEILI / UVM Online</p>
+  <button class="admin-footer-link" data-nav="admin"><i class="ti ti-lock"></i> Acceso para la Junta de Colonos</button>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore-compat.js"></script>
+<script>
+/* ===================== FIREBASE ===================== */
+/* IMPORTANTE: reemplaza estos 6 valores con los de TU proyecto de Firebase.
+   Instrucciones paso a paso: ver el mensaje de Claude que acompaña este archivo. */
+const firebaseConfig = {
+  apiKey: "AIzaSyDvotMqCCrKAt65A4_GDDXdOnU6Yk90Cmo",
+  authDomain: "jardines-alcalde-conectada.firebaseapp.com",
+  projectId: "jardines-alcalde-conectada",
+  storageBucket: "jardines-alcalde-conectada.firebasestorage.app",
+  messagingSenderId: "414942558339",
+  appId: "1:414942558339:web:c454de6feddad38fef03b6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ===================== ESTADO Y UTILIDADES ===================== */
+const state = { currentView:'inicio', adminUnlocked:false, adminTab:'avisos', academiaRegistrado:false, academiaNombre:'' };
+const ADMIN_PIN = '2026';
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function escapeHtml(str){
+  if(str===null||str===undefined) return '';
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function formatFecha(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return escapeHtml(iso);
+  return `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+}
+function formatFechaCorta(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return escapeHtml(iso);
+  const dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0');
+  return `${dd}/${mm}/${d.getFullYear()}`;
+}
+function newId(prefix){ return prefix + Date.now() + '-' + Math.random().toString(36).slice(2,8); }
+
+/* Almacenamiento: cada colección de Firestore corresponde a un prefijo
+   (aviso, directorio, quizutil, quizseg, asisportal, asisseg). Cada registro
+   es un documento con su propio ID (evita choques cuando varias personas
+   guardan al mismo tiempo). */
+function parsePrefixedKey(key){
+  const idx = key.indexOf(':');
+  return { collection: key.slice(0, idx), docId: key.slice(idx+1) };
+}
+async function loadByPrefix(prefix){
+  const collectionName = prefix.replace(/:$/, '');
+  try{
+    const snap = await db.collection(collectionName).get();
+    const items = [];
+    snap.forEach(docSnap=>{
+      const obj = docSnap.data();
+      obj._key = collectionName + ':' + docSnap.id;
+      items.push(obj);
+    });
+    return items;
+  }catch(e){ console.error('Error al leer', prefix, e); return []; }
+}
+async function saveItem(key, data){
+  const {collection, docId} = parsePrefixedKey(key);
+  try{ await db.collection(collection).doc(docId).set(data); return true; }
+  catch(e){ console.error('Error al guardar', key, e); return false; }
+}
+async function deleteItem(key){
+  const {collection, docId} = parsePrefixedKey(key);
+  try{ await db.collection(collection).doc(docId).delete(); return true; }
+  catch(e){ console.error('Error al borrar', key, e); return false; }
+}
+
+/* CSV */
+function toCSV(headers, rows){
+  const esc = v => { const s=(v===undefined||v===null)?'':String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const lines=[headers.map(esc).join(',')];
+  rows.forEach(r=>lines.push(r.map(esc).join(',')));
+  return lines.join('\r\n');
+}
+function downloadCSV(filename, headers, rows){
+  const csv = '\uFEFF' + toCSV(headers, rows);
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+/* Semillas iniciales: solo se crean si aún no hay nada publicado */
+async function seedIfEmpty(){
+  const avisos = await loadByPrefix('aviso:');
+  if(avisos.length===0){
+    await saveItem(newId('aviso:'), {categoria:'Aviso general', titulo:'Bienvenidos al portal oficial de la colonia', descripcion:'A partir de hoy, este portal es el canal oficial de avisos de la Junta de Colonos de Jardines Alcalde. Aquí encontrarás información confiable sobre cortes de servicio, obras y convocatorias, además de la Academia de Seguridad Digital para protegerte de fraudes.', fecha:new Date().toISOString()});
+  }
+  const dir = await loadByPrefix('directorio:');
+  if(dir.length===0){
+    await saveItem(newId('directorio:'), {nombre:'Junta de Colonos — Jardines Alcalde', rol:'Contacto oficial de la colonia', contacto:'Completar desde el panel de administración'});
+    await saveItem(newId('directorio:'), {nombre:'Asociación de Comerciantes', rol:'Enlace con los negocios de la zona', contacto:'Completar desde el panel de administración'});
+    await saveItem(newId('directorio:'), {nombre:'Policía / Emergencias', rol:'Emergencias en general', contacto:'911'});
+    await saveItem(newId('directorio:'), {nombre:'Condusef', rol:'Reportar fraude financiero o telefónico', contacto:'01 800 999 80 80 · gob.mx/condusef'});
+  }
+}
+
+/* ===================== NAVEGACIÓN ===================== */
+function setActiveNav(view){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.nav===view));
+}
+async function navigateTo(view){
+  state.currentView = view;
+  if(view!=='admin'){ /* nada especial */ }
+  setActiveNav(view);
+  await render();
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+window.navigateTo = navigateTo;
+
+async function render(){
+  const app = document.getElementById('app');
+  app.className = state.currentView==='admin' ? 'wide' : '';
+  app.innerHTML = '<div class="loading">Cargando…</div>';
+  let html = '';
+  if(state.currentView==='inicio') html = await renderInicio();
+  else if(state.currentView==='avisos') html = await renderAvisos();
+  else if(state.currentView==='academia') html = renderAcademia();
+  else if(state.currentView==='recursos') html = await renderRecursos();
+  else if(state.currentView==='autoeval') html = renderAutoeval();
+  else if(state.currentView==='admin') html = await renderAdmin();
+  app.innerHTML = html;
+}
+
+/* ===================== VISTA: INICIO ===================== */
+function iconoCategoria(cat){
+  const map = {'Corte de servicio':'ti-droplet','Obra pública':'ti-tools','Convocatoria':'ti-speakerphone','Seguridad':'ti-shield-check','Aviso general':'ti-info-circle'};
+  return map[cat] || 'ti-info-circle';
+}
+async function renderInicio(){
+  const all = (await loadByPrefix('aviso:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const avisos = all.slice(0,6);
+  const feedHtml = avisos.length ? avisos.map(a=>avisoCardHtml(a)).join('') :
+    `<div class="empty-state"><i class="ti ti-bell-off"></i>Todavía no hay avisos publicados.</div>`;
+  const verTodos = all.length>6 ? `<button class="btn secondary" data-nav="avisos" style="margin-top:6px">Ver todos los avisos (${all.length})</button>` : '';
+  return `
+    <div class="home-hero">
+      <div class="home-hero-graphic">
+        <svg viewBox="0 0 100 100" width="78" height="78" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="rgba(245,184,77,.18)"/>
+          <path d="M22 84 L22 42 L50 16 L78 42 L78 84" fill="none" stroke="var(--accent-glow)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="16" y1="84" x2="84" y2="84" stroke="var(--accent-glow)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Jardines Alcalde</h1>
+      <p>Avisos confiables y herramientas para cuidarte de fraudes, todo en un solo lugar.</p>
+    </div>
+    <div class="card feed-pin">
+      <div class="feed-pin-badge"><i class="ti ti-pin"></i> Fijado por la Junta de Colonos</div>
+      <div class="feed-pin-body">
+        <div class="feed-pin-icon"><i class="ti ti-shield-check"></i></div>
+        <div>
+          <h3 style="margin-bottom:4px">Aprende a protegerte de fraudes</h3>
+          <p>5 minutos para reconocer el fraude que más nos han reportado los vecinos.</p>
+          <button class="link-btn" data-nav="academia" style="padding:0">Ir a la Academia →</button>
+        </div>
+      </div>
+    </div>
+    <div class="feed-section-label">Avisos de la colonia</div>
+    ${feedHtml}
+    ${verTodos}
+  `;
+}
+
+/* ===================== VISTA: AVISOS ===================== */
+function avisoCardHtml(a){
+  return `
+    <div class="card feed-post">
+      <div class="feed-post-head">
+        <div class="feed-post-avatar"><i class="ti ${iconoCategoria(a.categoria)}"></i></div>
+        <div>
+          <div class="feed-post-author">Junta de Colonos</div>
+          <div class="feed-post-meta">${escapeHtml(a.categoria)} · ${formatFechaCorta(a.fecha)}</div>
+        </div>
+      </div>
+      <div class="feed-post-title">${escapeHtml(a.titulo)}</div>
+      <p class="feed-post-body">${escapeHtml(a.descripcion)}</p>
+    </div>`;
+}
+async function renderAvisos(){
+  const avisos = (await loadByPrefix('aviso:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const list = avisos.length ? avisos.map(a=>avisoCardHtml(a)).join('') :
+    `<div class="empty-state"><i class="ti ti-bell-off"></i>Todavía no hay avisos publicados. La Junta de Colonos publicará aquí los avisos oficiales de la colonia.</div>`;
+  return `
+    <h1>Avisos comunitarios</h1>
+    <p class="view-intro">Aquí se publican únicamente los avisos oficiales de la Junta de Colonos: cortes de servicios, obras y convocatorias. Si no está aquí, no es oficial.</p>
+    ${list}
+  `;
+}
+
+/* ===================== VISTA: ACADEMIA DE SEGURIDAD DIGITAL ===================== */
+function renderAcademia(){
+  if(!state.academiaRegistrado){
+    return `
+      <h1>Academia de Seguridad Digital</h1>
+      <p class="view-intro">Diez lecciones interactivas, unos 40 minutos en total, para protegerte a ti, a tu familia y a tu negocio.</p>
+      <div class="card" id="academiaRegistroWrap">
+        <h3 style="margin-bottom:8px"><i class="ti ti-user-check"></i> Regístrate para comenzar</h3>
+        <p class="hint" style="margin-top:-4px;margin-bottom:4px">Es el único paso antes de empezar.</p>
+        <p class="hint" style="margin-top:0;margin-bottom:12px">Tu nombre se guarda solo como evidencia de tu participación en este taller, para el proyecto de servicio social.</p>
+        <form id="form-academia-registro" novalidate>
+          <div class="field" style="margin-bottom:12px">
+            <label for="ac-nombre">Tu nombre</label>
+            <input type="text" id="ac-nombre" name="nombre" placeholder="Nombre completo">
+            <div class="error-text" data-error-for="nombre">Escribe tu nombre para comenzar.</div>
+          </div>
+          <button type="submit" class="btn"><i class="ti ti-device-floppy"></i> Guardar y comenzar</button>
+        </form>
+      </div>
+    `;
+  }
+  return `
+    <h1>Academia de Seguridad Digital</h1>
+    <p class="view-intro">Diez lecciones interactivas, unos 40 minutos en total, para protegerte a ti, a tu familia y a tu negocio. Toca, escribe y prueba — no solo leas.</p>
+
+    <div class="card" style="background:var(--primary-light);border:1px solid var(--primary);display:flex;align-items:center;gap:11px;">
+      <i class="ti ti-circle-check" style="color:var(--primary);font-size:22px;flex-shrink:0"></i>
+      <span style="font-size:.92rem;color:var(--primary-dark)"><strong>${escapeHtml(state.academiaNombre)}</strong>, tu participación ya quedó registrada.</span>
+    </div>
+
+    <div class="feed-section-label">Lo esencial de tu cuenta</div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-brand-whatsapp"></i>1. El fraude más común aquí: el código de WhatsApp</h3>
+      <p>Prueba esta situación real. Te llega este mensaje de un número que no conoces:</p>
+      <div class="chat-sim">
+        <div class="chat-bubble">
+          <div class="chat-bubble-from">Número desconocido</div>
+          <div class="chat-bubble-text">Hola! Sin querer te mandé mal un código, ¿me lo compartes? 🙏 Es: <strong>482 913</strong></div>
+        </div>
+        <div class="chat-choice-btns">
+          <button class="btn small" data-action="chat-choice" data-choice="share">Compartir el código</button>
+          <button class="btn small secondary" data-action="chat-choice" data-choice="noshare">No compartirlo</button>
+        </div>
+        <div class="chat-outcome" id="chatOutcome" hidden></div>
+      </div>
+      <div class="rule-box"><i class="ti ti-lock" aria-hidden="true"></i> Regla de oro: nunca compartas tu código de verificación con nadie, así diga ser de WhatsApp, un familiar o una empresa.</div>
+    </div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-key"></i>2. Contraseñas que sí protegen</h3>
+      <p>Prueba una idea de contraseña aquí abajo y mira qué tan fuerte es (no escribas una contraseña que uses de verdad):</p>
+      <div class="pwd-tool">
+        <label for="pwd-test">Contraseña de prueba</label>
+        <input type="text" id="pwd-test" autocomplete="off" placeholder="Ej. miperro2020">
+        <div class="pwd-meter"><div class="pwd-bar" id="pwdBar"></div></div>
+        <div class="pwd-label" id="pwdLabel">Empieza a escribir para ver qué tan fuerte es</div>
+      </div>
+      <p class="hint" style="margin-top:10px">Entre más larga y variada (mayúsculas, números, algún símbolo), más difícil de adivinar.</p>
+    </div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-shield-lock"></i>3. La verificación en dos pasos</h3>
+      <p>Es un segundo candado además de tu contraseña: aunque alguien la adivine, no podrá entrar sin el código que solo llega a tu teléfono.</p>
+      <div class="phone-steps">
+        <svg width="130" height="195" viewBox="0 0 140 210" role="img" aria-label="Pasos en el teléfono para activar la verificación en dos pasos">
+          <rect x="10" y="6" width="120" height="198" rx="20" fill="var(--surface)" stroke="var(--border)" stroke-width="3"/>
+          <rect x="26" y="26" width="88" height="12" rx="6" fill="var(--primary-light)"/>
+          <circle cx="34" cy="66" r="12" fill="var(--accent)"/>
+          <text x="34" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+          <rect x="54" y="60" width="60" height="12" rx="6" fill="var(--border)"/>
+          <circle cx="34" cy="104" r="12" fill="var(--accent)"/>
+          <text x="34" y="108" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+          <rect x="54" y="98" width="52" height="12" rx="6" fill="var(--border)"/>
+          <circle cx="34" cy="142" r="12" fill="var(--primary)"/>
+          <text x="34" y="146" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text>
+          <rect x="54" y="136" width="68" height="12" rx="6" fill="var(--primary)"/>
+        </svg>
+        <ol>
+          <li>Abre WhatsApp → <strong>Ajustes</strong></li>
+          <li>Entra a <strong>Cuenta</strong></li>
+          <li>Toca <strong>Verificación en dos pasos</strong> → Activar</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="feed-section-label">Cómo reconocer un fraude</div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-alert-triangle"></i>4. Señales de alerta de un fraude</h3>
+      <div class="flip-grid">
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Te apuran a decidir</div>
+          <div class="flip-back">"Tu cuenta se bloquea en 10 minutos" — la prisa es la trampa.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Piden un código o contraseña</div>
+          <div class="flip-back">Ninguna empresa seria te lo pide por mensaje o llamada.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Un premio que no esperabas</div>
+          <div class="flip-back">"Ganaste" un sorteo en el que nunca participaste: es anzuelo.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">"Soy de tu banco" y pide datos</div>
+          <div class="flip-back">Tu banco ya tiene tus datos. Si te los pide, cuelga y márcale tú.</div>
+        </div></button>
+      </div>
+      <p class="hint">Toca cada tarjeta para ver un ejemplo.</p>
+    </div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-phone"></i>5. Llamadas falsas de tu banco</h3>
+      <p>Muchos fraudes ya no llegan por mensaje: llegan por una llamada que suena muy convincente. Prueba esta situación:</p>
+      <div class="chat-sim">
+        <div class="chat-bubble">
+          <div class="chat-bubble-from"><i class="ti ti-phone-incoming"></i> Llamada de número desconocido</div>
+          <div class="chat-bubble-text">"Buenas tardes, hablamos de seguridad de su banco. Detectamos un cargo sospechoso. Para cancelarlo, deme el código que le acaba de llegar por mensaje."</div>
+        </div>
+        <div class="chat-choice-btns">
+          <button class="btn small" data-action="call-choice" data-choice="give">Dar el código</button>
+          <button class="btn small secondary" data-action="call-choice" data-choice="hangup">Colgar y llamar yo al banco</button>
+        </div>
+        <div class="chat-outcome" id="callOutcome" hidden></div>
+      </div>
+      <div class="rule-box"><i class="ti ti-lock" aria-hidden="true"></i> Regla de oro: tu banco nunca te pide contraseñas, códigos ni el número completo de tu tarjeta por teléfono.</div>
+    </div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-users"></i>6. El familiar en apuros</h3>
+      <p>Te llama alguien diciendo que un familiar tuyo tuvo un accidente o un problema legal, y que necesitas mandar dinero de inmediato. Te presionan para no colgar y no avisarle a nadie más. Es una de las formas de fraude más usadas contra adultos mayores en México.</p>
+      <div class="rule-box"><i class="ti ti-lock" aria-hidden="true"></i> Regla de oro: cuelga con calma y marca tú directamente a ese familiar, a su número de siempre.</div>
+      <p class="hint" style="margin:12px 0 8px">Ve marcando los pasos:</p>
+      <div class="check-list-wrap">
+        <div class="check-list">
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Cuelga la llamada, sin discutir ni explicar nada</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Marca tú mismo al familiar, a su número conocido</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Si no contesta, llama a alguien más de la familia para confirmar</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Nunca mandes dinero solo porque alguien lo pide con urgencia</span></button>
+        </div>
+        <div class="check-progress">0 de 4 completados</div>
+      </div>
+    </div>
+
+    <div class="feed-section-label">Fraude en redes sociales y enlaces</div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-copy"></i>7. Cuentas clonadas en redes sociales</h3>
+      <p>Alguien puede copiar tu foto de perfil y tu nombre para crear una cuenta idéntica a la tuya, y luego escribirle a tus contactos pidiendo dinero. Toca cada tarjeta:</p>
+      <div class="flip-grid">
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Un contacto te escribe raro</div>
+          <div class="flip-back">Si pide dinero de forma repentina, llámale por teléfono para confirmar que es él.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Solicitud de alguien que ya es tu amigo</div>
+          <div class="flip-back">Señal de cuenta clonada. Repórtala y avísale a esa persona por otro medio.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Perfil nuevo con fotos viejas</div>
+          <div class="flip-back">Revisa la fecha de creación y los amigos en común: muy pocos es mala señal.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Piden que no le digas a nadie</div>
+          <div class="flip-back">Cualquier petición de dinero que pide secreto es sospechosa, sea quien sea.</div>
+        </div></button>
+      </div>
+    </div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-link"></i>8. Enlaces y páginas falsas</h3>
+      <p>Algunos enlaces se ven casi idénticos a los reales, pero llevan a una página falsa que roba tus datos. Toca cada uno:</p>
+      <div class="flip-grid">
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">tubanco-verificacion.segura-mx.com</div>
+          <div class="flip-back">El nombre del banco va pegado a palabras extra. Un banco real usa un dominio simple y propio.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">wa.me/mensaje-premio-ganador</div>
+          <div class="flip-back">Ningún premio real se reclama por un enlace genérico de WhatsApp.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">correos-mx.paquete-retenido.info</div>
+          <div class="flip-back">La paquetería real no termina en .info ni pide pagar para "liberar" un paquete.</div>
+        </div></button>
+        <button class="flip-card" data-action="flip-card"><div class="flip-card-inner">
+          <div class="flip-front">Si dudas, no lo abras</div>
+          <div class="flip-back">Mejor escribe tú mismo la dirección en el navegador, en vez de tocar el enlace.</div>
+        </div></button>
+      </div>
+    </div>
+
+    <div class="feed-section-label">Para comerciantes</div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-cash"></i>9. Pagos y cobros seguros</h3>
+      <p>Si tienes un negocio en la colonia, estos son los fraudes que más se repiten con pagos digitales. Ve marcando lo que ya haces:</p>
+      <div class="check-list-wrap">
+        <div class="check-list">
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Espero la notificación de mi propio banco, no solo la captura que enseña el cliente</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Verifico que el nombre y el monto coincidan exactamente antes de entregar el producto</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Desconfío si me piden cobrar "más rápido" o con prisa inusual</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Si me piden un código para "confirmar" el pago, no lo comparto</span></button>
+        </div>
+        <div class="check-progress">0 de 4 completados</div>
+      </div>
+    </div>
+
+    <div class="feed-section-label">Si ya pasó</div>
+
+    <div class="card lesson">
+      <h3><i class="ti ti-first-aid-kit"></i>10. Si crees que ya caíste en un fraude</h3>
+      <p class="hint" style="margin-top:-4px;margin-bottom:12px">Ve marcando cada paso conforme lo hagas.</p>
+      <div class="check-list-wrap">
+        <div class="check-list">
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Cambia de inmediato la contraseña de la cuenta afectada</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Avisa a tus contactos que tu cuenta pudo ser usada por alguien más</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Si hubo dinero de por medio, contacta a tu banco cuanto antes</span></button>
+          <button class="check-step" data-action="toggle-check"><span class="check-box"><i class="ti ti-check"></i></span><span class="step-text">Repórtalo con Condusef (Directorio, en Recursos)</span></button>
+        </div>
+        <div class="check-progress">0 de 4 completados</div>
+      </div>
+      <div class="alert-box" style="margin-top:12px">No hay nada de qué avergonzarse: le puede pasar a cualquiera. Entre más rápido actúes, menos daño hay.</div>
+    </div>
+  `;
+}
+function evaluarFuerzaPwd(pwd){
+  let score = 0;
+  if(pwd.length>=8) score++;
+  if(pwd.length>=12) score++;
+  if(/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
+  if(/[0-9]/.test(pwd)) score++;
+  if(/[^A-Za-z0-9]/.test(pwd)) score++;
+  return Math.min(score,4);
+}
+function actualizarMedidorPwd(input){
+  const bar = document.getElementById('pwdBar');
+  const label = document.getElementById('pwdLabel');
+  if(!bar||!label) return;
+  const val = input.value;
+  if(!val){ bar.style.width='0%'; label.textContent='Empieza a escribir para ver qué tan fuerte es'; return; }
+  const niveles = [
+    {w:'20%',c:'var(--danger)',t:'Muy débil — fácil de adivinar'},
+    {w:'40%',c:'var(--danger)',t:'Débil — agrégale más caracteres'},
+    {w:'65%',c:'var(--accent)',t:'Regular — casi lista'},
+    {w:'85%',c:'var(--primary)',t:'Fuerte'},
+    {w:'100%',c:'var(--primary)',t:'Muy fuerte'}
+  ];
+  const n = niveles[evaluarFuerzaPwd(val)];
+  bar.style.width=n.w; bar.style.background=n.c; label.textContent=n.t;
+}
+function handleChatChoice(choice){
+  const el = document.getElementById('chatOutcome');
+  if(!el) return;
+  el.hidden = false;
+  if(choice==='share'){
+    el.className='chat-outcome bad';
+    el.innerHTML='<i class="ti ti-alert-triangle"></i><span>Si compartes el código, esa persona puede entrar a tu WhatsApp y pedir dinero a tus contactos haciéndose pasar por ti. Este es el mensaje exacto que ya han recibido varios vecinos.</span>';
+  }else{
+    el.className='chat-outcome good';
+    el.innerHTML='<i class="ti ti-circle-check"></i><span>Exacto. Ese código es tuyo. Nadie más debería pedírtelo, ni siquiera alguien que dice conocerte.</span>';
+  }
+}
+function handleCallChoice(choice){
+  const el = document.getElementById('callOutcome');
+  if(!el) return;
+  el.hidden = false;
+  if(choice==='give'){
+    el.className='chat-outcome bad';
+    el.innerHTML='<i class="ti ti-alert-triangle"></i><span>Ese código no cancela nada: autoriza una transferencia real a favor de quien llamó. Ningún banco pide un código para "cancelar" un cargo.</span>';
+  }else{
+    el.className='chat-outcome good';
+    el.innerHTML='<i class="ti ti-circle-check"></i><span>Exacto. Cuelga y marca tú mismo al número que está atrás de tu tarjeta, nunca al número que te dio quien llamó.</span>';
+  }
+}
+function handleFlipCard(btn){ btn.classList.toggle('flipped'); }
+async function handleAcademiaRegistro(form){
+  const fd = new FormData(form);
+  const nombre = (fd.get('nombre')||'').trim();
+  form.querySelector('[data-error-for="nombre"]').classList.toggle('show', !nombre);
+  if(!nombre) return;
+  const btn = form.querySelector('button[type=submit]');
+  btn.disabled = true; btn.innerHTML = 'Guardando…';
+  const data = {nombre, perfil:'Autorregistro (Academia)', fecha:new Date().toISOString()};
+  const saved = await saveItem(newId('asisseg:'), data);
+  if(saved){
+    state.academiaRegistrado = true;
+    state.academiaNombre = nombre;
+    await render();
+  }else{
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> Guardar y comenzar';
+    alert('No se pudo guardar. Intenta de nuevo.');
+  }
+}
+function handleToggleCheck(btn){
+  btn.classList.toggle('done');
+  const wrap = btn.closest('.check-list-wrap');
+  if(!wrap) return;
+  const total = wrap.querySelectorAll('.check-step').length;
+  const done = wrap.querySelectorAll('.check-step.done').length;
+  const progress = wrap.querySelector('.check-progress');
+  if(progress) progress.textContent = `${done} de ${total} completados`;
+}
+
+/* ===================== VISTA: RECURSOS Y DIRECTORIO ===================== */
+function dirCardHtml(d){
+  return `
+    <div class="card dir-card">
+      <div>
+        <div class="dir-name">${escapeHtml(d.nombre)}</div>
+        <div class="dir-rol">${escapeHtml(d.rol)}</div>
+      </div>
+      <div class="dir-contacto">${escapeHtml(d.contacto)}</div>
+    </div>`;
+}
+async function renderRecursos(){
+  const dir = await loadByPrefix('directorio:');
+  const dirHtml = dir.length ? dir.map(dirCardHtml).join('') :
+    `<div class="empty-state"><i class="ti ti-address-book"></i>Todavía no hay contactos registrados.</div>`;
+  return `
+    <h1>Recursos y directorio</h1>
+
+    <div class="section-block">
+      <div class="section-head"><h2>Guías rápidas</h2></div>
+      <div class="card">
+        <h3 style="margin-bottom:6px"><i class="ti ti-shield-lock"></i> Activa la verificación en dos pasos</h3>
+        <ol class="steps-list" style="margin-bottom:0">
+          <li>Abre WhatsApp → Ajustes → Cuenta</li>
+          <li>Toca "Verificación en dos pasos" → Activar</li>
+          <li>Elige un PIN de 6 dígitos que no uses en otro lado</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:6px"><i class="ti ti-first-aid-kit"></i> Si ya caíste en un fraude</h3>
+        <ol class="steps-list" style="margin-bottom:0">
+          <li>Cambia tu contraseña de inmediato</li>
+          <li>Avisa a tus contactos</li>
+          <li>Contacta a tu banco si hubo dinero de por medio</li>
+          <li>Repórtalo con Condusef (ver directorio abajo)</li>
+        </ol>
+      </div>
+      <p class="hint">Puedes guardar o imprimir esta página como recordatorio.</p>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head"><h2>Directorio útil</h2></div>
+      ${dirHtml}
+    </div>
+  `;
+}
+
+/* ===================== VISTA: AUTOEVALUACIÓN (2 cuestionarios) ===================== */
+function scaleRowHtml(name){
+  return [1,2,3,4,5].map(n=>`<label class="scale-opt"><input type="radio" name="${name}" value="${n}">${n}</label>`).join('');
+}
+function renderAutoeval(){
+  return `
+    <h1>Cuestionarios</h1>
+    <p class="view-intro">Son parte de la evaluación del proyecto y ayudan a la Junta de Colonos a mejorar el portal y los talleres. Cada uno toma menos de un minuto.</p>
+
+    <div id="quizUtilWrap">
+      <div class="card quiz-card">
+        <h3><i class="ti ti-device-mobile"></i>Uso y utilidad del portal</h3>
+        <p class="hint" style="margin-top:-6px">Para responder después del taller de uso del portal.</p>
+        <form id="form-quiz-util" novalidate>
+          <div class="field">
+            <label for="qu-nombre">Tu nombre</label>
+            <input type="text" id="qu-nombre" name="nombre" placeholder="Nombre completo">
+            <div class="error-text" data-error-for="nombre">Escribe tu nombre para que tu respuesta cuente como evidencia.</div>
+          </div>
+          <div class="field">
+            <label>Antes de este taller, ¿sabía a dónde acudir para enterarse de un corte de agua, luz u obra?</label>
+            <div class="radio-group" role="radiogroup">
+              <label class="radio-opt"><input type="radio" name="sabia" value="si">Sí</label>
+              <label class="radio-opt"><input type="radio" name="sabia" value="no">No</label>
+            </div>
+            <div class="error-text" data-error-for="sabia">Por favor selecciona una opción.</div>
+          </div>
+          <div class="field">
+            <label>¿Qué tan probable es que consulte el portal para enterarse de avisos oficiales?</label>
+            <div class="scale-row" role="radiogroup">${scaleRowHtml('probabilidad')}</div>
+            <div class="scale-labels"><span>Nada probable</span><span>Muy probable</span></div>
+            <div class="error-text" data-error-for="probabilidad">Por favor selecciona una opción.</div>
+          </div>
+          <div class="field">
+            <label>¿Qué tan fácil te resultó usar el portal hoy?</label>
+            <div class="scale-row" role="radiogroup">${scaleRowHtml('facilidad')}</div>
+            <div class="scale-labels"><span>Muy difícil</span><span>Muy fácil</span></div>
+            <div class="error-text" data-error-for="facilidad">Por favor selecciona una opción.</div>
+          </div>
+          <div class="field">
+            <label for="qu-modulo">¿Qué módulo te pareció más útil?</label>
+            <select id="qu-modulo" name="moduloFav">
+              <option value="Avisos">Avisos Comunitarios</option>
+              <option value="Academia">Academia de Seguridad Digital</option>
+              <option value="Recursos">Recursos y Directorio</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="qu-comentario">¿Qué te gustaría que el portal hiciera mejor? (opcional)</label>
+            <textarea id="qu-comentario" name="comentario" placeholder="Escribe aquí…"></textarea>
+          </div>
+          <button type="submit" class="btn"><i class="ti ti-send"></i>Enviar respuestas</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="quizSegWrap">
+      <div class="card quiz-card">
+        <h3><i class="ti ti-shield-lock"></i>Seguridad digital</h3>
+        <p class="hint" style="margin-top:-6px">Para responder después del taller de detección de fraudes.</p>
+        <form id="form-quiz-seg" novalidate>
+          <div class="field">
+            <label for="qs-nombre">Nombre (opcional)</label>
+            <input type="text" id="qs-nombre" name="nombre" placeholder="Tu nombre">
+          </div>
+          <div class="field">
+            <label>¿Alguna vez ha recibido una llamada, mensaje o correo que ahora identifica como un intento de fraude?</label>
+            <div class="radio-group" role="radiogroup">
+              <label class="radio-opt"><input type="radio" name="recibioFraude" value="si">Sí</label>
+              <label class="radio-opt"><input type="radio" name="recibioFraude" value="no">No</label>
+              <label class="radio-opt"><input type="radio" name="recibioFraude" value="no_seguro">No estoy seguro</label>
+            </div>
+            <div class="error-text" data-error-for="recibioFraude">Por favor selecciona una opción.</div>
+          </div>
+          <div class="field">
+            <label>Si alguien te pide tu código de verificación de WhatsApp por mensaje, ¿qué deberías hacer?</label>
+            <div class="radio-group" role="radiogroup" style="flex-direction:column">
+              <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="a">Dárselo si dice ser un familiar</label>
+              <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="b">Nunca compartirlo con nadie</label>
+              <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="c">Compartirlo solo si insiste mucho</label>
+              <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="d">Preguntarle primero su nombre completo</label>
+            </div>
+            <div class="error-text" data-error-for="respuestaCodigo">Por favor selecciona una opción.</div>
+          </div>
+          <div class="field">
+            <label for="qs-senal">Menciona una señal de alerta de un posible fraude digital (opcional)</label>
+            <textarea id="qs-senal" name="senalAlerta" placeholder="Escribe aquí…"></textarea>
+          </div>
+          <div class="field">
+            <label>¿Qué tan útil te pareció esta sesión sobre seguridad digital?</label>
+            <div class="scale-row" role="radiogroup">${scaleRowHtml('utilidad')}</div>
+            <div class="scale-labels"><span>Nada útil</span><span>Muy útil</span></div>
+            <div class="error-text" data-error-for="utilidad">Por favor selecciona una opción.</div>
+          </div>
+          <button type="submit" class="btn"><i class="ti ti-send"></i>Enviar respuestas</button>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function validateRadioGroup(form, name, errorEl){
+  const checked = form.querySelector(`input[name="${name}"]:checked`);
+  if(errorEl) errorEl.classList.toggle('show', !checked);
+  return !!checked;
+}
+
+async function handleQuizUtilSubmit(form){
+  const fd = new FormData(form);
+  const nombre = (fd.get('nombre')||'').trim();
+  const okNombre = !!nombre;
+  form.querySelector('[data-error-for="nombre"]').classList.toggle('show', !okNombre);
+  const ok1 = validateRadioGroup(form,'sabia', form.querySelector('[data-error-for="sabia"]'));
+  const ok2 = validateRadioGroup(form,'probabilidad', form.querySelector('[data-error-for="probabilidad"]'));
+  const ok3 = validateRadioGroup(form,'facilidad', form.querySelector('[data-error-for="facilidad"]'));
+  if(!okNombre||!ok1||!ok2||!ok3) return;
+  const data = {
+    fecha:new Date().toISOString(), nombre, sabia:fd.get('sabia'),
+    probabilidad:fd.get('probabilidad'), facilidad:fd.get('facilidad'),
+    moduloFav:fd.get('moduloFav'), comentario:fd.get('comentario')||''
+  };
+  const btn = form.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const saved = await saveItem(newId('quizutil:'), data);
+  const wrap = document.getElementById('quizUtilWrap');
+  if(saved){
+    wrap.innerHTML = `<div class="card confirm-box"><i class="ti ti-circle-check"></i><strong>¡Gracias!</strong> Tus respuestas sobre el uso del portal fueron registradas.</div>`;
+  }else{
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-send"></i>Enviar respuestas';
+    alert('No se pudo guardar. Revisa tu conexión e intenta de nuevo.');
+  }
+}
+
+async function handleQuizSegSubmit(form){
+  const fd = new FormData(form);
+  const ok1 = validateRadioGroup(form,'recibioFraude', form.querySelector('[data-error-for="recibioFraude"]'));
+  const ok2 = validateRadioGroup(form,'respuestaCodigo', form.querySelector('[data-error-for="respuestaCodigo"]'));
+  const ok3 = validateRadioGroup(form,'utilidad', form.querySelector('[data-error-for="utilidad"]'));
+  if(!ok1||!ok2||!ok3) return;
+  const respuestaCodigo = fd.get('respuestaCodigo');
+  const data = {
+    fecha:new Date().toISOString(), nombre:fd.get('nombre')||'', recibioFraude:fd.get('recibioFraude'),
+    respuestaCodigo, correcta: respuestaCodigo==='b',
+    senalAlerta:fd.get('senalAlerta')||'', utilidad:fd.get('utilidad')
+  };
+  const btn = form.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const saved = await saveItem(newId('quizseg:'), data);
+  const wrap = document.getElementById('quizSegWrap');
+  if(saved){
+    wrap.innerHTML = `<div class="card confirm-box"><i class="ti ti-circle-check"></i><strong>¡Gracias!</strong> Tus respuestas sobre seguridad digital fueron registradas.</div>`;
+  }else{
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-send"></i>Enviar respuestas';
+    alert('No se pudo guardar. Revisa tu conexión e intenta de nuevo.');
+  }
+}
+
+/* ===================== VISTA: ADMINISTRACIÓN ===================== */
+async function renderAdminTabContent(){
+  if(state.adminTab==='avisos') return await renderAdminAvisos();
+  if(state.adminTab==='directorio') return await renderAdminDirectorio();
+  if(state.adminTab==='quizutil') return await renderAdminQuizUtil();
+  if(state.adminTab==='quizseg') return await renderAdminQuizSeg();
+  if(state.adminTab==='asisportal') return await renderAdminAsistencia('asisportal:','Taller de uso del portal');
+  if(state.adminTab==='asisseg') return await renderAdminAsistencia('asisseg:','Taller de seguridad digital');
+  return '';
+}
+async function refreshAdminContent(){
+  const el = document.getElementById('adminContent');
+  if(!el) return;
+  el.innerHTML = await renderAdminTabContent();
+}
+async function renderAdmin(){
+  if(!state.adminUnlocked){
+    return `
+      <div class="pin-screen">
+        <i class="ti ti-lock"></i>
+        <h1>Panel de administración</h1>
+        <p class="view-intro">Solo para la Junta de Colonos. Ingresa el código para continuar.</p>
+        <form id="form-pin" novalidate>
+          <div class="field">
+            <label for="pin-input">Código de acceso</label>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="pin-input" name="pin" class="pin-input" maxlength="8" placeholder="••••" autocomplete="off">
+          </div>
+          <div class="error-text" id="pin-error">Código incorrecto. Intenta de nuevo.</div>
+          <button type="submit" class="btn"><i class="ti ti-login"></i>Entrar</button>
+        </form>
+      </div>`;
+  }
+  const tabs = [
+    {id:'avisos', label:'Avisos', icon:'ti-bell'},
+    {id:'directorio', label:'Directorio', icon:'ti-address-book'},
+    {id:'quizutil', label:'Resultados: Uso', icon:'ti-clipboard-check'},
+    {id:'quizseg', label:'Resultados: Seguridad', icon:'ti-shield-lock'},
+    {id:'asisportal', label:'Asistencia: uso del portal', icon:'ti-users'},
+    {id:'asisseg', label:'Asistencia: seguridad digital', icon:'ti-users'}
+  ];
+  const tabsHtml = tabs.map(t=>`<button class="admin-tab ${state.adminTab===t.id?'active':''}" data-admin-tab="${t.id}"><i class="ti ${t.icon}"></i> ${t.label}</button>`).join('');
+  const contentHtml = await renderAdminTabContent();
+  return `
+    <div class="admin-toolbar">
+      <h1 style="margin-bottom:0">Panel de administración</h1>
+      <button class="btn secondary small" data-action="admin-lock"><i class="ti ti-lock"></i>Salir</button>
+    </div>
+    <div class="admin-tabs">${tabsHtml}</div>
+    <div id="adminContent">${contentHtml}</div>
+  `;
+}
+
+/* --- Avisos (admin) --- */
+function avisoAdminRowHtml(a){
+  return `
+    <div class="card" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+      <div style="flex:1;min-width:0">
+        <span class="aviso-tag">${escapeHtml(a.categoria)}</span>
+        <span style="color:var(--text-secondary);font-size:.82rem;margin-left:6px">${formatFechaCorta(a.fecha)}</span>
+        <div class="aviso-title" style="margin-top:4px">${escapeHtml(a.titulo)}</div>
+        <p style="margin:0;color:var(--text-secondary);font-size:.92rem">${escapeHtml(a.descripcion)}</p>
+      </div>
+      <button class="icon-action danger" data-action="delete-aviso" data-id="${a._key}" aria-label="Eliminar aviso"><i class="ti ti-trash"></i></button>
+    </div>`;
+}
+async function renderAdminAvisos(){
+  const avisos = (await loadByPrefix('aviso:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const rows = avisos.length ? avisos.map(avisoAdminRowHtml).join('') : `<div class="empty-state"><i class="ti ti-bell-off"></i>Aún no has publicado ningún aviso.</div>`;
+  const today = new Date().toISOString().slice(0,10);
+  return `
+    <div class="card">
+      <h3 style="margin-bottom:12px"><i class="ti ti-plus"></i> Publicar nuevo aviso</h3>
+      <form id="form-add-aviso" novalidate>
+        <div class="field">
+          <label for="av-categoria">Categoría</label>
+          <select id="av-categoria" name="categoria">
+            <option>Corte de servicio</option><option>Obra pública</option><option>Convocatoria</option><option>Seguridad</option><option>Aviso general</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="av-titulo">Título</label>
+          <input type="text" id="av-titulo" name="titulo" placeholder="Ej. Corte de agua el jueves 20">
+          <div class="error-text" data-error-for="titulo">Escribe un título.</div>
+        </div>
+        <div class="field">
+          <label for="av-descripcion">Descripción</label>
+          <textarea id="av-descripcion" name="descripcion" placeholder="Detalles para los vecinos"></textarea>
+          <div class="error-text" data-error-for="descripcion">Escribe una descripción.</div>
+        </div>
+        <div class="field"><label for="av-fecha">Fecha</label><input type="date" id="av-fecha" name="fecha" value="${today}"></div>
+        <button type="submit" class="btn"><i class="ti ti-send"></i>Publicar aviso</button>
+      </form>
+    </div>
+    <div class="section-head" style="margin-top:22px"><h2>Avisos publicados (${avisos.length})</h2></div>
+    ${rows}
+  `;
+}
+async function handleAddAviso(form){
+  const fd = new FormData(form);
+  const titulo=(fd.get('titulo')||'').trim(), descripcion=(fd.get('descripcion')||'').trim();
+  form.querySelector('[data-error-for="titulo"]').classList.toggle('show', !titulo);
+  form.querySelector('[data-error-for="descripcion"]').classList.toggle('show', !descripcion);
+  if(!titulo||!descripcion) return;
+  const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : new Date().toISOString();
+  const data = {categoria:fd.get('categoria'), titulo, descripcion, fecha:fechaVal};
+  const btn=form.querySelector('button[type=submit]'); btn.disabled=true;
+  const saved = await saveItem(newId('aviso:'), data);
+  if(saved) await refreshAdminContent(); else { btn.disabled=false; alert('No se pudo publicar. Intenta de nuevo.'); }
+}
+async function handleDeleteAviso(key){
+  if(!confirm('¿Eliminar este aviso? Esta acción no se puede deshacer.')) return;
+  await deleteItem(key); await refreshAdminContent();
+}
+
+/* --- Directorio (admin) --- */
+function dirAdminRowHtml(d){
+  return `
+    <div class="card dir-card">
+      <div>
+        <div class="dir-name">${escapeHtml(d.nombre)}</div>
+        <div class="dir-rol">${escapeHtml(d.rol)}</div>
+        <div class="dir-contacto" style="margin-top:2px">${escapeHtml(d.contacto)}</div>
+      </div>
+      <button class="icon-action danger" data-action="delete-directorio" data-id="${d._key}" aria-label="Eliminar contacto"><i class="ti ti-trash"></i></button>
+    </div>`;
+}
+async function renderAdminDirectorio(){
+  const dir = await loadByPrefix('directorio:');
+  const rows = dir.length ? dir.map(dirAdminRowHtml).join('') : `<div class="empty-state"><i class="ti ti-address-book"></i>Aún no hay contactos.</div>`;
+  return `
+    <div class="card">
+      <h3 style="margin-bottom:12px"><i class="ti ti-plus"></i> Agregar contacto</h3>
+      <form id="form-add-directorio" novalidate>
+        <div class="field"><label for="dir-nombre">Nombre</label><input type="text" id="dir-nombre" name="nombre" placeholder="Ej. Junta de Colonos"><div class="error-text" data-error-for="nombre">Escribe un nombre.</div></div>
+        <div class="field"><label for="dir-rol">Descripción</label><input type="text" id="dir-rol" name="rol" placeholder="Ej. Contacto oficial de la colonia"></div>
+        <div class="field"><label for="dir-contacto">Teléfono / contacto</label><input type="text" id="dir-contacto" name="contacto" placeholder="Ej. 33 1234 5678"><div class="error-text" data-error-for="contacto">Escribe un contacto.</div></div>
+        <button type="submit" class="btn"><i class="ti ti-send"></i>Agregar al directorio</button>
+      </form>
+    </div>
+    <div class="section-head" style="margin-top:22px"><h2>Contactos (${dir.length})</h2></div>
+    ${rows}
+  `;
+}
+async function handleAddDirectorio(form){
+  const fd = new FormData(form);
+  const nombre=(fd.get('nombre')||'').trim(), contacto=(fd.get('contacto')||'').trim();
+  form.querySelector('[data-error-for="nombre"]').classList.toggle('show', !nombre);
+  form.querySelector('[data-error-for="contacto"]').classList.toggle('show', !contacto);
+  if(!nombre||!contacto) return;
+  const data = {nombre, rol:(fd.get('rol')||'').trim(), contacto};
+  const btn=form.querySelector('button[type=submit]'); btn.disabled=true;
+  const saved = await saveItem(newId('directorio:'), data);
+  if(saved) await refreshAdminContent(); else { btn.disabled=false; alert('No se pudo guardar.'); }
+}
+async function handleDeleteDirectorio(key){
+  if(!confirm('¿Eliminar este contacto?')) return;
+  await deleteItem(key); await refreshAdminContent();
+}
+
+/* --- Resultados: uso y utilidad (admin) --- */
+async function renderAdminQuizUtil(){
+  const data = (await loadByPrefix('quizutil:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const n = data.length;
+  const avgProb = n ? (data.reduce((s,d)=>s+Number(d.probabilidad||0),0)/n).toFixed(1) : '—';
+  const avgFac = n ? (data.reduce((s,d)=>s+Number(d.facilidad||0),0)/n).toFixed(1) : '—';
+  const rows = data.map(d=>`
+    <tr><td>${formatFechaCorta(d.fecha)}</td><td>${escapeHtml(d.nombre)||'—'}</td><td>${d.sabia==='si'?'Sí':'No'}</td>
+    <td>${escapeHtml(d.probabilidad)}/5</td><td>${escapeHtml(d.facilidad)}/5</td><td>${escapeHtml(d.moduloFav)}</td><td>${escapeHtml(d.comentario)||'—'}</td></tr>`).join('');
+  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>Sabía de avisos</th><th>Probabilidad de uso</th><th>Facilidad</th><th>Módulo favorito</th><th>Comentario</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : `<div class="empty-state"><i class="ti ti-clipboard-off"></i>Todavía no hay respuestas de este cuestionario.</div>`;
+  return `
+    <div class="admin-toolbar">
+      <h2 style="margin-bottom:0">Resultados: Uso y utilidad</h2>
+      ${n?`<button class="btn secondary small" data-action="download-quizutil"><i class="ti ti-download"></i>Descargar CSV</button>`:''}
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num">${n}</div><div class="stat-label">Respuestas</div></div>
+      <div class="stat-box"><div class="stat-num">${avgProb}</div><div class="stat-label">Probabilidad de uso (prom.)</div></div>
+      <div class="stat-box"><div class="stat-num">${avgFac}</div><div class="stat-label">Facilidad de uso (prom.)</div></div>
+    </div>
+    ${tableHtml}
+  `;
+}
+async function handleDownloadQuizUtil(){
+  const data = (await loadByPrefix('quizutil:')).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
+  const headers = ['Fecha','Nombre','Sabía dónde acudir','Probabilidad de uso (1-5)','Facilidad de uso (1-5)','Módulo favorito','Comentario'];
+  const rows = data.map(d=>[formatFechaCorta(d.fecha), d.nombre||'', d.sabia==='si'?'Sí':'No', d.probabilidad, d.facilidad, d.moduloFav, d.comentario||'']);
+  downloadCSV('cuestionario-uso-y-utilidad.csv', headers, rows);
+}
+
+/* --- Resultados: seguridad digital (admin) --- */
+async function renderAdminQuizSeg(){
+  const data = (await loadByPrefix('quizseg:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const n = data.length;
+  const correctas = data.filter(d=>d.correcta).length;
+  const pctCorrecta = n ? Math.round(correctas/n*100) : 0;
+  const avgUtil = n ? (data.reduce((s,d)=>s+Number(d.utilidad||0),0)/n).toFixed(1) : '—';
+  const respLabel = {a:'Dárselo si dice ser familiar', b:'Nunca compartirlo', c:'Solo si insiste', d:'Preguntar su nombre'};
+  const rows = data.map(d=>`
+    <tr><td>${formatFechaCorta(d.fecha)}</td><td>${escapeHtml(d.nombre)||'—'}</td>
+    <td>${d.recibioFraude==='si'?'Sí':(d.recibioFraude==='no'?'No':'No seguro')}</td>
+    <td>${d.correcta?'<strong style="color:var(--primary)">Correcta</strong>':'<strong style="color:var(--danger)">Incorrecta</strong>'} — ${escapeHtml(respLabel[d.respuestaCodigo]||d.respuestaCodigo)}</td>
+    <td>${escapeHtml(d.senalAlerta)||'—'}</td><td>${escapeHtml(d.utilidad)}/5</td></tr>`).join('');
+  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>¿Recibió fraude?</th><th>Respuesta código WhatsApp</th><th>Señal de alerta (abierta)</th><th>Utilidad</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : `<div class="empty-state"><i class="ti ti-clipboard-off"></i>Todavía no hay respuestas de este cuestionario.</div>`;
+  return `
+    <div class="admin-toolbar">
+      <h2 style="margin-bottom:0">Resultados: Seguridad digital</h2>
+      ${n?`<button class="btn secondary small" data-action="download-quizseg"><i class="ti ti-download"></i>Descargar CSV</button>`:''}
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num">${n}</div><div class="stat-label">Respuestas</div></div>
+      <div class="stat-box"><div class="stat-num">${pctCorrecta}%</div><div class="stat-label">Respondió correcto (meta: 70%)</div></div>
+      <div class="stat-box"><div class="stat-num">${avgUtil}</div><div class="stat-label">Utilidad de la sesión (prom.)</div></div>
+    </div>
+    ${tableHtml}
+  `;
+}
+async function handleDownloadQuizSeg(){
+  const data = (await loadByPrefix('quizseg:')).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
+  const headers = ['Fecha','Nombre','Recibió intento de fraude','Respuesta (código WhatsApp)','¿Correcta?','Señal de alerta mencionada','Utilidad (1-5)'];
+  const rows = data.map(d=>[formatFechaCorta(d.fecha), d.nombre||'', d.recibioFraude, d.respuestaCodigo, d.correcta?'Sí':'No', d.senalAlerta||'', d.utilidad]);
+  downloadCSV('cuestionario-seguridad-digital.csv', headers, rows);
+}
+
+/* --- Asistencia / beneficiarios (admin) --- */
+async function renderAdminAsistencia(prefix, label){
+  const data = (await loadByPrefix(prefix)).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const n = data.length, meta = 15, pct = Math.min(100, Math.round(n/meta*100));
+  const today = new Date().toISOString().slice(0,10);
+  const rows = data.map(d=>`
+    <tr><td>${escapeHtml(d.nombre)}</td><td>${escapeHtml(d.perfil)}</td><td>${formatFechaCorta(d.fecha)}</td>
+    <td><button class="icon-action danger" data-action="delete-asistencia" data-id="${d._key}" aria-label="Eliminar registro"><i class="ti ti-trash"></i></button></td></tr>`).join('');
+  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Nombre</th><th>Perfil</th><th>Fecha</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : `<div class="empty-state"><i class="ti ti-users"></i>Todavía no hay beneficiarios registrados en esta lista.</div>`;
+  return `
+    <div class="card">
+      <h3 style="margin-bottom:12px"><i class="ti ti-plus"></i> Registrar asistencia — ${escapeHtml(label)}</h3>
+      <form id="form-add-asistencia" data-prefix="${prefix}" data-label="${escapeHtml(label)}" novalidate>
+        <div class="field"><label for="as-nombre">Nombre del beneficiario</label><input type="text" id="as-nombre" name="nombre" placeholder="Nombre completo"><div class="error-text" data-error-for="nombre">Escribe un nombre.</div></div>
+        <div class="field"><label for="as-perfil">Perfil</label>
+          <select id="as-perfil" name="perfil"><option>Adulto mayor</option><option>Comerciante</option><option>Joven</option><option>Padre/madre de familia</option><option>Otro</option></select>
+        </div>
+        <div class="field"><label for="as-fecha">Fecha</label><input type="date" id="as-fecha" name="fecha" value="${today}"></div>
+        <button type="submit" class="btn"><i class="ti ti-send"></i>Registrar</button>
+      </form>
+    </div>
+    <div class="admin-toolbar" style="margin-top:22px">
+      <h2 style="margin-bottom:0">${escapeHtml(label)}</h2>
+      ${n?`<button class="btn secondary small" data-action="download-asistencia" data-prefix="${prefix}" data-label="${escapeHtml(label)}"><i class="ti ti-download"></i>Descargar CSV</button>`:''}
+    </div>
+    <div class="progress-pill"><i class="ti ti-target-arrow"></i>${n} / ${meta} beneficiarios mínimos (${pct}%)</div>
+    <div style="height:14px"></div>
+    ${tableHtml}
+  `;
+}
+async function handleAddAsistencia(form){
+  const prefix = form.dataset.prefix;
+  const fd = new FormData(form);
+  const nombre = (fd.get('nombre')||'').trim();
+  form.querySelector('[data-error-for="nombre"]').classList.toggle('show', !nombre);
+  if(!nombre) return;
+  const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : new Date().toISOString();
+  const data = {nombre, perfil:fd.get('perfil'), fecha:fechaVal};
+  const btn=form.querySelector('button[type=submit]'); btn.disabled=true;
+  const saved = await saveItem(newId(prefix), data);
+  if(saved) await refreshAdminContent(); else { btn.disabled=false; alert('No se pudo registrar.'); }
+}
+async function handleDeleteAsistencia(key){
+  if(!confirm('¿Eliminar este registro de asistencia?')) return;
+  await deleteItem(key); await refreshAdminContent();
+}
+async function handleDownloadAsistencia(prefix, label){
+  const data = (await loadByPrefix(prefix)).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
+  const headers = ['Nombre','Perfil','Fecha'];
+  const rows = data.map(d=>[d.nombre, d.perfil, formatFechaCorta(d.fecha)]);
+  downloadCSV('asistencia-'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.csv', headers, rows);
+}
+async function handlePinSubmit(form){
+  const fd = new FormData(form);
+  const val = (fd.get('pin')||'').trim();
+  if(val === ADMIN_PIN){ state.adminUnlocked = true; await render(); }
+  else{
+    const err = document.getElementById('pin-error');
+    if(err) err.classList.add('show');
+    const inp = document.getElementById('pin-input');
+    if(inp){ inp.value=''; inp.focus(); }
+  }
+}
+async function handleAdminLock(){
+  state.adminUnlocked = false; state.adminTab = 'avisos';
+  await navigateTo('inicio');
+}
+async function handleAdminTabClick(tabId){
+  state.adminTab = tabId;
+  await render();
+}
+
+/* ===================== EVENTOS GLOBALES ===================== */
+document.addEventListener('click', (e)=>{
+  const navBtn = e.target.closest('[data-nav]');
+  if(navBtn){ navigateTo(navBtn.dataset.nav); return; }
+  const tabBtn = e.target.closest('[data-admin-tab]');
+  if(tabBtn){ handleAdminTabClick(tabBtn.dataset.adminTab); return; }
+  const actionBtn = e.target.closest('[data-action]');
+  if(actionBtn){
+    const action = actionBtn.dataset.action;
+    if(action==='admin-lock') handleAdminLock();
+    else if(action==='delete-aviso') handleDeleteAviso(actionBtn.dataset.id);
+    else if(action==='delete-directorio') handleDeleteDirectorio(actionBtn.dataset.id);
+    else if(action==='delete-asistencia') handleDeleteAsistencia(actionBtn.dataset.id);
+    else if(action==='download-quizutil') handleDownloadQuizUtil();
+    else if(action==='download-quizseg') handleDownloadQuizSeg();
+    else if(action==='download-asistencia') handleDownloadAsistencia(actionBtn.dataset.prefix, actionBtn.dataset.label);
+    else if(action==='chat-choice') handleChatChoice(actionBtn.dataset.choice);
+    else if(action==='call-choice') handleCallChoice(actionBtn.dataset.choice);
+    else if(action==='flip-card') handleFlipCard(actionBtn);
+    else if(action==='toggle-check') handleToggleCheck(actionBtn);
+  }
+});
+document.addEventListener('input', (e)=>{
+  if(e.target.id==='pwd-test') actualizarMedidorPwd(e.target);
+});
+document.addEventListener('change', (e)=>{
+  if(e.target.matches('input[type=radio]')){
+    const name = e.target.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(inp=>{
+      const wrap = inp.closest('.radio-opt,.scale-opt');
+      if(wrap) wrap.classList.toggle('checked', inp.checked);
+    });
+  }
+});
+document.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const id = e.target.id;
+  if(id==='form-pin') handlePinSubmit(e.target);
+  else if(id==='form-academia-registro') handleAcademiaRegistro(e.target);
+  else if(id==='form-quiz-util') handleQuizUtilSubmit(e.target);
+  else if(id==='form-quiz-seg') handleQuizSegSubmit(e.target);
+  else if(id==='form-add-aviso') handleAddAviso(e.target);
+  else if(id==='form-add-directorio') handleAddDirectorio(e.target);
+  else if(id==='form-add-asistencia') handleAddAsistencia(e.target);
+});
+const fontToggleBtn = document.getElementById('fontToggle');
+if(fontToggleBtn){ fontToggleBtn.addEventListener('click', ()=>{ document.documentElement.classList.toggle('text-lg'); }); }
+
+/* ===================== INICIO DE LA APP ===================== */
+(async function init(){
+  try{ await seedIfEmpty(); }catch(e){ console.error('Error al preparar datos iniciales', e); }
+  setActiveNav('inicio');
+  await render();
+})();
+</script>
+</body>
+</html>
