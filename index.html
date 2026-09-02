@@ -284,7 +284,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 /* ===================== ESTADO Y UTILIDADES ===================== */
-const state = { currentView:'inicio', adminUnlocked:false, adminTab:'avisos', academiaRegistrado:false, academiaNombre:'' };
+const state = { currentView:'inicio', adminUnlocked:false, adminTab:'avisos', academiaRegistrado:false, academiaNombre:'', pendingAcademia:null, pendingAsistencia:null };
 const ADMIN_PIN = '2026';
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
@@ -463,6 +463,30 @@ async function renderAvisos(){
 
 /* ===================== VISTA: ACADEMIA DE SEGURIDAD DIGITAL ===================== */
 function renderAcademia(){
+  if(!state.academiaRegistrado && state.pendingAcademia){
+    const n = state.pendingAcademia.nombre;
+    return `
+      <h1>Academia de Seguridad Digital</h1>
+      <div class="card">
+        <div style="text-align:center;margin-bottom:18px;">
+          <i class="ti ti-user-check" style="font-size:40px;color:var(--primary);display:block;margin-bottom:8px;"></i>
+          <strong style="font-size:1.18rem;color:var(--primary-dark);">¿Tu nombre es correcto?</strong>
+        </div>
+        <div class="card" style="background:var(--surface-alt);margin-bottom:16px;padding:16px;display:flex;gap:14px;align-items:center;">
+          <i class="ti ti-user-circle" style="color:var(--primary);font-size:32px;flex-shrink:0;"></i>
+          <div>
+            <div style="font-size:.76rem;color:var(--text-secondary);margin-bottom:3px;">Tu nombre quedará registrado como:</div>
+            <div style="font-weight:700;font-size:1.18rem;color:var(--text);">${escapeHtml(n)}</div>
+          </div>
+        </div>
+        <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:16px;">Si hay un error, corrígelo antes de confirmar — este nombre aparecerá en el registro oficial del taller.</p>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" data-action="confirm-academia" style="flex:2;"><i class="ti ti-circle-check"></i> Sí, está correcto</button>
+          <button class="btn secondary" data-action="cancel-academia" style="flex:1;"><i class="ti ti-pencil"></i> Editar</button>
+        </div>
+      </div>
+    `;
+  }
   if(!state.academiaRegistrado){
     return `
       <h1>Academia de Seguridad Digital</h1>
@@ -742,18 +766,30 @@ async function handleAcademiaRegistro(form){
   const nombre = (fd.get('nombre')||'').trim();
   form.querySelector('[data-error-for="nombre"]').classList.toggle('show', !nombre);
   if(!nombre) return;
-  const btn = form.querySelector('button[type=submit]');
-  btn.disabled = true; btn.innerHTML = 'Guardando…';
+  // Mostrar confirmación antes de guardar
+  state.pendingAcademia = { nombre };
+  await render();
+}
+async function handleAcademiaConfirm(){
+  if(!state.pendingAcademia) return;
+  const { nombre } = state.pendingAcademia;
+  const btn = document.querySelector('[data-action="confirm-academia"]');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Guardando…'; }
   const data = {nombre, perfil:'Autorregistro (Academia)', fecha:new Date().toISOString()};
   const saved = await saveItem(newId('asisseg:'), data);
   if(saved){
     state.academiaRegistrado = true;
     state.academiaNombre = nombre;
+    state.pendingAcademia = null;
     await render();
   }else{
-    btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> Guardar y comenzar';
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-circle-check"></i> Sí, está correcto'; }
     alert('No se pudo guardar. Intenta de nuevo.');
   }
+}
+async function handleAcademiaCancel(){
+  state.pendingAcademia = null;
+  await render();
 }
 function handleToggleCheck(btn){
   btn.classList.toggle('done');
@@ -1137,8 +1173,9 @@ async function renderAdminQuizUtil(){
   const avgFac = n ? (data.reduce((s,d)=>s+Number(d.facilidad||0),0)/n).toFixed(1) : '—';
   const rows = data.map(d=>`
     <tr><td>${formatFechaCorta(d.fecha)}</td><td>${escapeHtml(d.nombre)||'—'}</td><td>${d.sabia==='si'?'Sí':'No'}</td>
-    <td>${escapeHtml(d.probabilidad)}/5</td><td>${escapeHtml(d.facilidad)}/5</td><td>${escapeHtml(d.moduloFav)}</td><td>${escapeHtml(d.comentario)||'—'}</td></tr>`).join('');
-  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>Sabía de avisos</th><th>Probabilidad de uso</th><th>Facilidad</th><th>Módulo favorito</th><th>Comentario</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    <td>${escapeHtml(d.probabilidad)}/5</td><td>${escapeHtml(d.facilidad)}/5</td><td>${escapeHtml(d.moduloFav)}</td><td>${escapeHtml(d.comentario)||'—'}</td>
+    <td><button class="icon-action danger" data-action="delete-quizutil" data-id="${d._key}" aria-label="Eliminar respuesta"><i class="ti ti-trash"></i></button></td></tr>`).join('');
+  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>Sabía de avisos</th><th>Probabilidad de uso</th><th>Facilidad</th><th>Módulo favorito</th><th>Comentario</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     : `<div class="empty-state"><i class="ti ti-clipboard-off"></i>Todavía no hay respuestas de este cuestionario.</div>`;
   return `
     <div class="admin-toolbar">
@@ -1172,8 +1209,9 @@ async function renderAdminQuizSeg(){
     <tr><td>${formatFechaCorta(d.fecha)}</td><td>${escapeHtml(d.nombre)||'—'}</td>
     <td>${d.recibioFraude==='si'?'Sí':(d.recibioFraude==='no'?'No':'No seguro')}</td>
     <td>${d.correcta?'<strong style="color:var(--primary)">Correcta</strong>':'<strong style="color:var(--danger)">Incorrecta</strong>'} — ${escapeHtml(respLabel[d.respuestaCodigo]||d.respuestaCodigo)}</td>
-    <td>${escapeHtml(d.senalAlerta)||'—'}</td><td>${escapeHtml(d.utilidad)}/5</td></tr>`).join('');
-  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>¿Recibió fraude?</th><th>Respuesta código WhatsApp</th><th>Señal de alerta (abierta)</th><th>Utilidad</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    <td>${escapeHtml(d.senalAlerta)||'—'}</td><td>${escapeHtml(d.utilidad)}/5</td>
+    <td><button class="icon-action danger" data-action="delete-quizseg" data-id="${d._key}" aria-label="Eliminar respuesta"><i class="ti ti-trash"></i></button></td></tr>`).join('');
+  const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>¿Recibió fraude?</th><th>Respuesta código WhatsApp</th><th>Señal de alerta (abierta)</th><th>Utilidad</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     : `<div class="empty-state"><i class="ti ti-clipboard-off"></i>Todavía no hay respuestas de este cuestionario.</div>`;
   return `
     <div class="admin-toolbar">
@@ -1193,6 +1231,14 @@ async function handleDownloadQuizSeg(){
   const headers = ['Fecha','Nombre','Recibió intento de fraude','Respuesta (código WhatsApp)','¿Correcta?','Señal de alerta mencionada','Utilidad (1-5)'];
   const rows = data.map(d=>[formatFechaCorta(d.fecha), d.nombre||'', d.recibioFraude, d.respuestaCodigo, d.correcta?'Sí':'No', d.senalAlerta||'', d.utilidad]);
   downloadCSV('cuestionario-seguridad-digital.csv', headers, rows);
+}
+async function handleDeleteQuizUtil(key){
+  if(!confirm('¿Eliminar esta respuesta del cuestionario de uso? Esta acción no se puede deshacer.')) return;
+  await deleteItem(key); await refreshAdminContent();
+}
+async function handleDeleteQuizSeg(key){
+  if(!confirm('¿Eliminar esta respuesta del cuestionario de seguridad? Esta acción no se puede deshacer.')) return;
+  await deleteItem(key); await refreshAdminContent();
 }
 
 /* --- Asistencia / beneficiarios (admin) --- */
@@ -1230,17 +1276,58 @@ async function handleAddAsistencia(form){
   const prefix = form.dataset.prefix;
   const fd = new FormData(form);
   const nombre = (fd.get('nombre')||'').trim();
+  const perfil = fd.get('perfil');
   form.querySelector('[data-error-for="nombre"]').classList.toggle('show', !nombre);
   if(!nombre) return;
-  const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : new Date().toISOString();
-  const data = {nombre, perfil:fd.get('perfil'), fecha:fechaVal};
-  const btn=form.querySelector('button[type=submit]'); btn.disabled=true;
-  const saved = await saveItem(newId(prefix), data);
-  if(saved) await refreshAdminContent(); else { btn.disabled=false; alert('No se pudo registrar.'); }
+  const fechaRaw = fd.get('fecha');
+  const fechaVal = fechaRaw ? new Date(fechaRaw+'T12:00:00').toISOString() : new Date().toISOString();
+  // Guardar pendiente y mostrar confirmación
+  state.pendingAsistencia = {prefix, nombre, perfil, fechaVal};
+  const wrap = form.closest('.card');
+  wrap.innerHTML = `
+    <div style="text-align:center;margin-bottom:18px;">
+      <i class="ti ti-user-check" style="font-size:40px;color:var(--primary);display:block;margin-bottom:8px;"></i>
+      <strong style="font-size:1.15rem;color:var(--primary-dark);">¿Los datos son correctos?</strong>
+    </div>
+    <div class="card" style="background:var(--surface-alt);margin-bottom:16px;padding:16px;">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+        <i class="ti ti-user" style="color:var(--primary);font-size:22px;flex-shrink:0;"></i>
+        <div><div style="font-size:.76rem;color:var(--text-secondary);">Nombre</div><div style="font-weight:700;font-size:1.05rem;">${escapeHtml(nombre)}</div></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+        <i class="ti ti-id-badge-2" style="color:var(--primary);font-size:22px;flex-shrink:0;"></i>
+        <div><div style="font-size:.76rem;color:var(--text-secondary);">Perfil</div><div style="font-weight:700;">${escapeHtml(perfil)}</div></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <i class="ti ti-calendar-event" style="color:var(--primary);font-size:22px;flex-shrink:0;"></i>
+        <div><div style="font-size:.76rem;color:var(--text-secondary);">Fecha</div><div style="font-weight:700;">${formatFecha(fechaVal)}</div></div>
+      </div>
+    </div>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:16px;">Revisa que el nombre y los datos sean correctos antes de guardar — no se puede editar después.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" data-action="confirm-asistencia" style="flex:2;"><i class="ti ti-circle-check"></i> Confirmar y guardar</button>
+      <button class="btn secondary" data-action="cancel-asistencia" style="flex:1;"><i class="ti ti-pencil"></i> Editar</button>
+    </div>
+  `;
 }
 async function handleDeleteAsistencia(key){
   if(!confirm('¿Eliminar este registro de asistencia?')) return;
   await deleteItem(key); await refreshAdminContent();
+}
+async function handleConfirmAsistencia(){
+  if(!state.pendingAsistencia) return;
+  const {prefix, nombre, perfil, fechaVal} = state.pendingAsistencia;
+  const btn = document.querySelector('[data-action="confirm-asistencia"]');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Guardando…'; }
+  const data = {nombre, perfil, fecha:fechaVal};
+  const saved = await saveItem(newId(prefix), data);
+  state.pendingAsistencia = null;
+  if(saved) await refreshAdminContent();
+  else { if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-circle-check"></i> Confirmar y guardar'; } alert('No se pudo registrar. Intenta de nuevo.'); }
+}
+async function handleCancelAsistencia(){
+  state.pendingAsistencia = null;
+  await refreshAdminContent();
 }
 async function handleDownloadAsistencia(prefix, label){
   const data = (await loadByPrefix(prefix)).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
@@ -1281,6 +1368,12 @@ document.addEventListener('click', (e)=>{
     else if(action==='delete-aviso') handleDeleteAviso(actionBtn.dataset.id);
     else if(action==='delete-directorio') handleDeleteDirectorio(actionBtn.dataset.id);
     else if(action==='delete-asistencia') handleDeleteAsistencia(actionBtn.dataset.id);
+    else if(action==='delete-quizutil') handleDeleteQuizUtil(actionBtn.dataset.id);
+    else if(action==='delete-quizseg') handleDeleteQuizSeg(actionBtn.dataset.id);
+    else if(action==='confirm-academia') handleAcademiaConfirm();
+    else if(action==='cancel-academia') handleAcademiaCancel();
+    else if(action==='confirm-asistencia') handleConfirmAsistencia();
+    else if(action==='cancel-asistencia') handleCancelAsistencia();
     else if(action==='download-quizutil') handleDownloadQuizUtil();
     else if(action==='download-quizseg') handleDownloadQuizSeg();
     else if(action==='download-asistencia') handleDownloadAsistencia(actionBtn.dataset.prefix, actionBtn.dataset.label);
