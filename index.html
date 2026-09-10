@@ -231,10 +231,21 @@
   .icon-action{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s ease;}
   .icon-action.danger{color:var(--danger);border-color:var(--danger-light);}
   .icon-action.danger:hover{background:var(--danger-light);}
+  .icon-action.edit{color:var(--primary);border-color:var(--primary-light);}
+  .icon-action.edit:hover{background:var(--primary-light);}
   .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
   .stat-box{flex:1;min-width:130px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow-sm);}
   .stat-box .stat-num{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:var(--primary);}
   .stat-box .stat-label{color:var(--text-secondary);font-size:.8rem;}
+
+  /* Modal de edición */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .modal-box{background:var(--surface);border-radius:var(--radius);padding:24px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .25s cubic-bezier(.16,1,.3,1);}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .modal-box h3{margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .modal-actions{display:flex;gap:8px;margin-top:18px;}
+  .modal-actions .btn{flex:1;}
 </style>
 </head>
 <body>
@@ -1058,6 +1069,39 @@ async function renderAdmin(){
   `;
 }
 
+/* --- Modal genérico de edición --- */
+function openEditModal(title, fieldsHtml, onSave){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3><i class="ti ti-pencil"></i>${escapeHtml(title)}</h3>
+      <form id="modal-edit-form" novalidate>
+        ${fieldsHtml}
+        <div class="modal-actions">
+          <button type="button" class="btn secondary" data-action="modal-cancel"><i class="ti ti-x"></i>Cancelar</button>
+          <button type="submit" class="btn"><i class="ti ti-device-floppy"></i>Guardar cambios</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('[data-action="modal-cancel"]').addEventListener('click', ()=> overlay.remove());
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#modal-edit-form').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i>Guardando…';
+    await onSave(new FormData(e.target));
+    overlay.remove();
+    await refreshAdminContent();
+  });
+  // Activar radio-opts pre-checked
+  overlay.querySelectorAll('input[type=radio]:checked').forEach(inp=>{
+    const wrap = inp.closest('.radio-opt,.scale-opt');
+    if(wrap) wrap.classList.add('checked');
+  });
+}
+
 /* --- Avisos (admin) --- */
 function avisoAdminRowHtml(a){
   return `
@@ -1068,7 +1112,10 @@ function avisoAdminRowHtml(a){
         <div class="aviso-title" style="margin-top:4px">${escapeHtml(a.titulo)}</div>
         <p style="margin:0;color:var(--text-secondary);font-size:.92rem">${escapeHtml(a.descripcion)}</p>
       </div>
-      <button class="icon-action danger" data-action="delete-aviso" data-id="${a._key}" aria-label="Eliminar aviso"><i class="ti ti-trash"></i></button>
+      <div class="row-actions">
+        <button class="icon-action edit" data-action="edit-aviso" data-id="${a._key}" aria-label="Editar aviso"><i class="ti ti-pencil"></i></button>
+        <button class="icon-action danger" data-action="delete-aviso" data-id="${a._key}" aria-label="Eliminar aviso"><i class="ti ti-trash"></i></button>
+      </div>
     </div>`;
 }
 async function renderAdminAvisos(){
@@ -1119,6 +1166,26 @@ async function handleDeleteAviso(key){
   if(!confirm('¿Eliminar este aviso? Esta acción no se puede deshacer.')) return;
   await deleteItem(key); await refreshAdminContent();
 }
+async function handleEditAviso(key){
+  const avisos = await loadByPrefix('aviso:');
+  const aviso = avisos.find(a=>a._key===key);
+  if(!aviso) return;
+  const fechaISO = aviso.fecha ? new Date(aviso.fecha).toISOString().slice(0,10) : '';
+  const categorias = ['Corte de servicio','Obra pública','Convocatoria','Seguridad','Aviso general'];
+  const catOptions = categorias.map(c=>`<option${c===aviso.categoria?' selected':''}>${c}</option>`).join('');
+  const fieldsHtml = `
+    <div class="field"><label>Categoría</label><select name="categoria">${catOptions}</select></div>
+    <div class="field"><label>Título</label><input type="text" name="titulo" value="${escapeHtml(aviso.titulo)}"></div>
+    <div class="field"><label>Descripción</label><textarea name="descripcion">${escapeHtml(aviso.descripcion)}</textarea></div>
+    <div class="field"><label>Fecha de publicación</label><input type="date" name="fecha" value="${fechaISO}"></div>`;
+  openEditModal('Editar aviso', fieldsHtml, async(fd)=>{
+    const titulo = (fd.get('titulo')||'').trim();
+    const descripcion = (fd.get('descripcion')||'').trim();
+    if(!titulo||!descripcion){ alert('El título y la descripción son obligatorios.'); return; }
+    const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : aviso.fecha;
+    await saveItem(key, {categoria:fd.get('categoria'), titulo, descripcion, fecha:fechaVal});
+  });
+}
 
 /* --- Directorio (admin) --- */
 function dirAdminRowHtml(d){
@@ -1168,20 +1235,23 @@ async function handleDeleteDirectorio(key){
 /* --- Resultados: uso y utilidad (admin) --- */
 async function renderAdminQuizUtil(){
   const data = (await loadByPrefix('quizutil:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const asisData = await loadByPrefix('asisportal:');
   const n = data.length;
   const avgProb = n ? (data.reduce((s,d)=>s+Number(d.probabilidad||0),0)/n).toFixed(1) : '—';
   const avgFac = n ? (data.reduce((s,d)=>s+Number(d.facilidad||0),0)/n).toFixed(1) : '—';
   const rows = data.map(d=>`
     <tr><td>${formatFechaCorta(d.fecha)}</td><td>${escapeHtml(d.nombre)||'—'}</td><td>${d.sabia==='si'?'Sí':'No'}</td>
     <td>${escapeHtml(d.probabilidad)}/5</td><td>${escapeHtml(d.facilidad)}/5</td><td>${escapeHtml(d.moduloFav)}</td><td>${escapeHtml(d.comentario)||'—'}</td>
-    <td><button class="icon-action danger" data-action="delete-quizutil" data-id="${d._key}" aria-label="Eliminar respuesta"><i class="ti ti-trash"></i></button></td></tr>`).join('');
+    <td><div class="row-actions"><button class="icon-action edit" data-action="edit-quizutil" data-id="${d._key}" aria-label="Editar respuesta"><i class="ti ti-pencil"></i></button><button class="icon-action danger" data-action="delete-quizutil" data-id="${d._key}" aria-label="Eliminar respuesta"><i class="ti ti-trash"></i></button></div></td></tr>`).join('');
   const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>Sabía de avisos</th><th>Probabilidad de uso</th><th>Facilidad</th><th>Módulo favorito</th><th>Comentario</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     : `<div class="empty-state"><i class="ti ti-clipboard-off"></i>Todavía no hay respuestas de este cuestionario.</div>`;
+  const syncNote = n > 0 && asisData.length !== n ? `<div class="card" style="background:var(--accent-light);border:1px solid var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;padding:12px 16px;"><i class="ti ti-alert-triangle" style="color:var(--accent-dark);font-size:20px;flex-shrink:0"></i><span style="font-size:.88rem;color:var(--accent-dark)">Hay <strong>${n}</strong> respuestas de uso pero <strong>${asisData.length}</strong> registros de asistencia del portal. Para que los datos cuadren, asegúrate de que coincidan.</span></div>` : '';
   return `
     <div class="admin-toolbar">
       <h2 style="margin-bottom:0">Resultados: Uso y utilidad</h2>
       ${n?`<button class="btn secondary small" data-action="download-quizutil"><i class="ti ti-download"></i>Descargar CSV</button>`:''}
     </div>
+    ${syncNote}
     <div class="stat-row">
       <div class="stat-box"><div class="stat-num">${n}</div><div class="stat-label">Respuestas</div></div>
       <div class="stat-box"><div class="stat-num">${avgProb}</div><div class="stat-label">Probabilidad de uso (prom.)</div></div>
@@ -1196,10 +1266,61 @@ async function handleDownloadQuizUtil(){
   const rows = data.map(d=>[formatFechaCorta(d.fecha), d.nombre||'', d.sabia==='si'?'Sí':'No', d.probabilidad, d.facilidad, d.moduloFav, d.comentario||'']);
   downloadCSV('cuestionario-uso-y-utilidad.csv', headers, rows);
 }
+async function handleEditQuizUtil(key){
+  const data = await loadByPrefix('quizutil:');
+  const item = data.find(d=>d._key===key);
+  if(!item) return;
+  const fechaISO = item.fecha ? new Date(item.fecha).toISOString().slice(0,10) : '';
+  const modulos = ['Avisos','Academia','Recursos','Otro'];
+  const modOpts = modulos.map(m=>`<option${m===item.moduloFav?' selected':''}>${m}</option>`).join('');
+  const fieldsHtml = `
+    <div class="field"><label>Fecha</label><input type="date" name="fecha" value="${fechaISO}"></div>
+    <div class="field"><label>Nombre</label><input type="text" name="nombre" value="${escapeHtml(item.nombre||'')}"></div>
+    <div class="field"><label>¿Sabía dónde acudir para avisos?</label>
+      <div class="radio-group" role="radiogroup">
+        <label class="radio-opt"><input type="radio" name="sabia" value="si"${item.sabia==='si'?' checked':''}>Sí</label>
+        <label class="radio-opt"><input type="radio" name="sabia" value="no"${item.sabia==='no'?' checked':''}>No</label>
+      </div></div>
+    <div class="field"><label>Probabilidad de uso (1-5)</label>
+      <div class="scale-row" role="radiogroup">${[1,2,3,4,5].map(n=>'<label class="scale-opt"><input type="radio" name="probabilidad" value="'+n+'"'+(String(item.probabilidad)===String(n)?' checked':'')+'>'+n+'</label>').join('')}</div></div>
+    <div class="field"><label>Facilidad de uso (1-5)</label>
+      <div class="scale-row" role="radiogroup">${[1,2,3,4,5].map(n=>'<label class="scale-opt"><input type="radio" name="facilidad" value="'+n+'"'+(String(item.facilidad)===String(n)?' checked':'')+'>'+n+'</label>').join('')}</div></div>
+    <div class="field"><label>Módulo favorito</label><select name="moduloFav">${modOpts}</select></div>
+    <div class="field"><label>Comentario</label><textarea name="comentario">${escapeHtml(item.comentario||'')}</textarea></div>
+    <div class="card" style="background:var(--primary-light);border:1px solid var(--primary);padding:12px 14px;font-size:.85rem;color:var(--primary-dark);display:flex;gap:8px;align-items:flex-start;"><i class="ti ti-info-circle" style="flex-shrink:0;margin-top:2px"></i><span>Si cambias el nombre o la fecha, la asistencia del taller de uso del portal <strong>se actualizará automáticamente</strong> si existe un registro con el nombre original.</span></div>`;
+  const originalNombre = item.nombre;
+  const originalFecha = item.fecha;
+  openEditModal('Editar respuesta: Uso y utilidad', fieldsHtml, async(fd)=>{
+    const nombre = (fd.get('nombre')||'').trim();
+    const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : item.fecha;
+    const updated = {
+      fecha: fechaVal, nombre,
+      sabia: fd.get('sabia')||item.sabia,
+      probabilidad: fd.get('probabilidad')||item.probabilidad,
+      facilidad: fd.get('facilidad')||item.facilidad,
+      moduloFav: fd.get('moduloFav'),
+      comentario: fd.get('comentario')||''
+    };
+    await saveItem(key, updated);
+    // Sincronizar asistencia del portal si cambió el nombre o la fecha
+    if(nombre !== originalNombre || fechaVal !== originalFecha){
+      const asisData = await loadByPrefix('asisportal:');
+      const match = asisData.find(a=>a.nombre===originalNombre);
+      if(match){
+        const asisUpdate = {...match};
+        delete asisUpdate._key;
+        if(nombre !== originalNombre) asisUpdate.nombre = nombre;
+        if(fechaVal !== originalFecha) asisUpdate.fecha = fechaVal;
+        await saveItem(match._key, asisUpdate);
+      }
+    }
+  });
+}
 
 /* --- Resultados: seguridad digital (admin) --- */
 async function renderAdminQuizSeg(){
   const data = (await loadByPrefix('quizseg:')).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+  const asisData = await loadByPrefix('asisseg:');
   const n = data.length;
   const correctas = data.filter(d=>d.correcta).length;
   const pctCorrecta = n ? Math.round(correctas/n*100) : 0;
@@ -1210,14 +1331,16 @@ async function renderAdminQuizSeg(){
     <td>${d.recibioFraude==='si'?'Sí':(d.recibioFraude==='no'?'No':'No seguro')}</td>
     <td>${d.correcta?'<strong style="color:var(--primary)">Correcta</strong>':'<strong style="color:var(--danger)">Incorrecta</strong>'} — ${escapeHtml(respLabel[d.respuestaCodigo]||d.respuestaCodigo)}</td>
     <td>${escapeHtml(d.senalAlerta)||'—'}</td><td>${escapeHtml(d.utilidad)}/5</td>
-    <td><button class="icon-action danger" data-action="delete-quizseg" data-id="${d._key}" aria-label="Eliminar respuesta"><i class="ti ti-trash"></i></button></td></tr>`).join('');
+    <td><div class="row-actions"><button class="icon-action edit" data-action="edit-quizseg" data-id="${d._key}" aria-label="Editar respuesta"><i class="ti ti-pencil"></i></button><button class="icon-action danger" data-action="delete-quizseg" data-id="${d._key}" aria-label="Eliminar respuesta"><i class="ti ti-trash"></i></button></div></td></tr>`).join('');
   const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Nombre</th><th>¿Recibió fraude?</th><th>Respuesta código WhatsApp</th><th>Señal de alerta (abierta)</th><th>Utilidad</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     : `<div class="empty-state"><i class="ti ti-clipboard-off"></i>Todavía no hay respuestas de este cuestionario.</div>`;
+  const syncNote = n > 0 && asisData.length !== n ? `<div class="card" style="background:var(--accent-light);border:1px solid var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;padding:12px 16px;"><i class="ti ti-alert-triangle" style="color:var(--accent-dark);font-size:20px;flex-shrink:0"></i><span style="font-size:.88rem;color:var(--accent-dark)">Hay <strong>${n}</strong> respuestas de seguridad pero <strong>${asisData.length}</strong> registros de asistencia de seguridad. Para que los datos cuadren, asegúrate de que coincidan.</span></div>` : '';
   return `
     <div class="admin-toolbar">
       <h2 style="margin-bottom:0">Resultados: Seguridad digital</h2>
       ${n?`<button class="btn secondary small" data-action="download-quizseg"><i class="ti ti-download"></i>Descargar CSV</button>`:''}
     </div>
+    ${syncNote}
     <div class="stat-row">
       <div class="stat-box"><div class="stat-num">${n}</div><div class="stat-label">Respuestas</div></div>
       <div class="stat-box"><div class="stat-num">${pctCorrecta}%</div><div class="stat-label">Respondió correcto (meta: 70%)</div></div>
@@ -1231,6 +1354,60 @@ async function handleDownloadQuizSeg(){
   const headers = ['Fecha','Nombre','Recibió intento de fraude','Respuesta (código WhatsApp)','¿Correcta?','Señal de alerta mencionada','Utilidad (1-5)'];
   const rows = data.map(d=>[formatFechaCorta(d.fecha), d.nombre||'', d.recibioFraude, d.respuestaCodigo, d.correcta?'Sí':'No', d.senalAlerta||'', d.utilidad]);
   downloadCSV('cuestionario-seguridad-digital.csv', headers, rows);
+}
+async function handleEditQuizSeg(key){
+  const data = await loadByPrefix('quizseg:');
+  const item = data.find(d=>d._key===key);
+  if(!item) return;
+  const fechaISO = item.fecha ? new Date(item.fecha).toISOString().slice(0,10) : '';
+  const fieldsHtml = `
+    <div class="field"><label>Fecha</label><input type="date" name="fecha" value="${fechaISO}"></div>
+    <div class="field"><label>Nombre</label><input type="text" name="nombre" value="${escapeHtml(item.nombre||'')}"></div>
+    <div class="field"><label>¿Recibió intento de fraude?</label>
+      <div class="radio-group" role="radiogroup">
+        <label class="radio-opt"><input type="radio" name="recibioFraude" value="si"${item.recibioFraude==='si'?' checked':''}>Sí</label>
+        <label class="radio-opt"><input type="radio" name="recibioFraude" value="no"${item.recibioFraude==='no'?' checked':''}>No</label>
+        <label class="radio-opt"><input type="radio" name="recibioFraude" value="no_seguro"${item.recibioFraude==='no_seguro'?' checked':''}>No seguro</label>
+      </div></div>
+    <div class="field"><label>Respuesta al código de WhatsApp</label>
+      <div class="radio-group" role="radiogroup" style="flex-direction:column">
+        <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="a"${item.respuestaCodigo==='a'?' checked':''}>Dárselo si dice ser familiar</label>
+        <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="b"${item.respuestaCodigo==='b'?' checked':''}>Nunca compartirlo con nadie</label>
+        <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="c"${item.respuestaCodigo==='c'?' checked':''}>Compartirlo solo si insiste mucho</label>
+        <label class="radio-opt" style="min-width:100%"><input type="radio" name="respuestaCodigo" value="d"${item.respuestaCodigo==='d'?' checked':''}>Preguntarle primero su nombre completo</label>
+      </div></div>
+    <div class="field"><label>Señal de alerta mencionada</label><textarea name="senalAlerta">${escapeHtml(item.senalAlerta||'')}</textarea></div>
+    <div class="field"><label>Utilidad de la sesión (1-5)</label>
+      <div class="scale-row" role="radiogroup">${[1,2,3,4,5].map(n=>'<label class="scale-opt"><input type="radio" name="utilidad" value="'+n+'"'+(String(item.utilidad)===String(n)?' checked':'')+'>'+n+'</label>').join('')}</div></div>
+    <div class="card" style="background:var(--primary-light);border:1px solid var(--primary);padding:12px 14px;font-size:.85rem;color:var(--primary-dark);display:flex;gap:8px;align-items:flex-start;"><i class="ti ti-info-circle" style="flex-shrink:0;margin-top:2px"></i><span>Si cambias el nombre o la fecha, la asistencia del taller de seguridad digital <strong>se actualizará automáticamente</strong> si existe un registro con el nombre original.</span></div>`;
+  const originalNombre = item.nombre;
+  const originalFecha = item.fecha;
+  openEditModal('Editar respuesta: Seguridad digital', fieldsHtml, async(fd)=>{
+    const nombre = (fd.get('nombre')||'').trim();
+    const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : item.fecha;
+    const respuestaCodigo = fd.get('respuestaCodigo')||item.respuestaCodigo;
+    const updated = {
+      fecha: fechaVal, nombre,
+      recibioFraude: fd.get('recibioFraude')||item.recibioFraude,
+      respuestaCodigo,
+      correcta: respuestaCodigo==='b',
+      senalAlerta: fd.get('senalAlerta')||'',
+      utilidad: fd.get('utilidad')||item.utilidad
+    };
+    await saveItem(key, updated);
+    // Sincronizar asistencia de seguridad si cambió el nombre o la fecha
+    if(nombre !== originalNombre || fechaVal !== originalFecha){
+      const asisData = await loadByPrefix('asisseg:');
+      const match = asisData.find(a=>a.nombre===originalNombre);
+      if(match){
+        const asisUpdate = {...match};
+        delete asisUpdate._key;
+        if(nombre !== originalNombre) asisUpdate.nombre = nombre;
+        if(fechaVal !== originalFecha) asisUpdate.fecha = fechaVal;
+        await saveItem(match._key, asisUpdate);
+      }
+    }
+  });
 }
 async function handleDeleteQuizUtil(key){
   if(!confirm('¿Eliminar esta respuesta del cuestionario de uso? Esta acción no se puede deshacer.')) return;
@@ -1246,11 +1423,16 @@ async function renderAdminAsistencia(prefix, label){
   const data = (await loadByPrefix(prefix)).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
   const n = data.length, meta = 15, pct = Math.min(100, Math.round(n/meta*100));
   const today = new Date().toISOString().slice(0,10);
+  // Calcular sincronización con cuestionarios
+  const linkedQuizPrefix = prefix === 'asisportal:' ? 'quizutil:' : 'quizseg:';
+  const linkedQuizLabel = prefix === 'asisportal:' ? 'uso del portal' : 'seguridad digital';
+  const quizData = await loadByPrefix(linkedQuizPrefix);
   const rows = data.map(d=>`
     <tr><td>${escapeHtml(d.nombre)}</td><td>${escapeHtml(d.perfil)}</td><td>${formatFechaCorta(d.fecha)}</td>
-    <td><button class="icon-action danger" data-action="delete-asistencia" data-id="${d._key}" aria-label="Eliminar registro"><i class="ti ti-trash"></i></button></td></tr>`).join('');
+    <td><div class="row-actions"><button class="icon-action edit" data-action="edit-asistencia" data-id="${d._key}" data-prefix="${prefix}" data-label="${escapeHtml(label)}" aria-label="Editar registro"><i class="ti ti-pencil"></i></button><button class="icon-action danger" data-action="delete-asistencia" data-id="${d._key}" aria-label="Eliminar registro"><i class="ti ti-trash"></i></button></div></td></tr>`).join('');
   const tableHtml = n ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Nombre</th><th>Perfil</th><th>Fecha</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     : `<div class="empty-state"><i class="ti ti-users"></i>Todavía no hay beneficiarios registrados en esta lista.</div>`;
+  const syncNote = n > 0 && quizData.length !== n ? `<div class="card" style="background:var(--accent-light);border:1px solid var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;padding:12px 16px;"><i class="ti ti-alert-triangle" style="color:var(--accent-dark);font-size:20px;flex-shrink:0"></i><span style="font-size:.88rem;color:var(--accent-dark)">Hay <strong>${n}</strong> asistencias pero <strong>${quizData.length}</strong> respuestas en el cuestionario de ${linkedQuizLabel}. Revisa que ambos coincidan para que los datos cuadren.</span></div>` : '';
   return `
     <div class="card">
       <h3 style="margin-bottom:12px"><i class="ti ti-plus"></i> Registrar asistencia — ${escapeHtml(label)}</h3>
@@ -1267,6 +1449,7 @@ async function renderAdminAsistencia(prefix, label){
       <h2 style="margin-bottom:0">${escapeHtml(label)}</h2>
       ${n?`<button class="btn secondary small" data-action="download-asistencia" data-prefix="${prefix}" data-label="${escapeHtml(label)}"><i class="ti ti-download"></i>Descargar CSV</button>`:''}
     </div>
+    ${syncNote}
     <div class="progress-pill"><i class="ti ti-target-arrow"></i>${n} / ${meta} beneficiarios mínimos (${pct}%)</div>
     <div style="height:14px"></div>
     ${tableHtml}
@@ -1313,6 +1496,24 @@ async function handleAddAsistencia(form){
 async function handleDeleteAsistencia(key){
   if(!confirm('¿Eliminar este registro de asistencia?')) return;
   await deleteItem(key); await refreshAdminContent();
+}
+async function handleEditAsistencia(key, prefix, label){
+  const data = await loadByPrefix(prefix);
+  const item = data.find(d=>d._key===key);
+  if(!item) return;
+  const fechaISO = item.fecha ? new Date(item.fecha).toISOString().slice(0,10) : '';
+  const perfiles = ['Adulto mayor','Comerciante','Joven','Padre/madre de familia','Otro'];
+  const perfilOpts = perfiles.map(p=>`<option${p===item.perfil?' selected':''}>${p}</option>`).join('');
+  const fieldsHtml = `
+    <div class="field"><label>Nombre del beneficiario</label><input type="text" name="nombre" value="${escapeHtml(item.nombre||'')}"></div>
+    <div class="field"><label>Perfil</label><select name="perfil">${perfilOpts}</select></div>
+    <div class="field"><label>Fecha</label><input type="date" name="fecha" value="${fechaISO}"></div>`;
+  openEditModal('Editar asistencia — ' + label, fieldsHtml, async(fd)=>{
+    const nombre = (fd.get('nombre')||'').trim();
+    if(!nombre){ alert('El nombre es obligatorio.'); return; }
+    const fechaVal = fd.get('fecha') ? new Date(fd.get('fecha')+'T12:00:00').toISOString() : item.fecha;
+    await saveItem(key, {nombre, perfil:fd.get('perfil'), fecha:fechaVal});
+  });
 }
 async function handleConfirmAsistencia(){
   if(!state.pendingAsistencia) return;
@@ -1365,10 +1566,14 @@ document.addEventListener('click', (e)=>{
   if(actionBtn){
     const action = actionBtn.dataset.action;
     if(action==='admin-lock') handleAdminLock();
+    else if(action==='edit-aviso') handleEditAviso(actionBtn.dataset.id);
     else if(action==='delete-aviso') handleDeleteAviso(actionBtn.dataset.id);
     else if(action==='delete-directorio') handleDeleteDirectorio(actionBtn.dataset.id);
+    else if(action==='edit-asistencia') handleEditAsistencia(actionBtn.dataset.id, actionBtn.dataset.prefix, actionBtn.dataset.label);
     else if(action==='delete-asistencia') handleDeleteAsistencia(actionBtn.dataset.id);
+    else if(action==='edit-quizutil') handleEditQuizUtil(actionBtn.dataset.id);
     else if(action==='delete-quizutil') handleDeleteQuizUtil(actionBtn.dataset.id);
+    else if(action==='edit-quizseg') handleEditQuizSeg(actionBtn.dataset.id);
     else if(action==='delete-quizseg') handleDeleteQuizSeg(actionBtn.dataset.id);
     else if(action==='confirm-academia') handleAcademiaConfirm();
     else if(action==='cancel-academia') handleAcademiaCancel();
